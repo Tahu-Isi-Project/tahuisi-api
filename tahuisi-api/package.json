@@ -1,0 +1,23 @@
+{
+  "name": "ti-article-service",
+  "type": "module",
+  "scripts": {
+    "dev": "bun dev",
+    "build": "bun build",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "migrate-local": "wrangler d1 migrations apply DB --local"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.7.6",
+    "@libsql/client": "^0.17.3",
+    "@types/node": "^25.6.0",
+    "drizzle-orm": "^0.45.2",
+    "drizzle-zod": "^0.8.3",
+    "hono": "^4.12.14",
+    "uuidv7": "^1.2.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.10"
+  }
+}

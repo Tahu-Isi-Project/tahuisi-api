@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "lib": [
+      "ESNext"
+    ],
+    "jsx": "react-jsx",
+    "jsxImportSource": "hono/jsx",
+    "paths": {
+      "@common/*": ["./src/common/*"],
+      "@article/*": ["./src/domain/article/*"],
+      "@media/*": ["./src/domain/media/*"],
+    },
+    "types": ["node"]
+  },
+}
