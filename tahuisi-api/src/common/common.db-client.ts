@@ -1,7 +1,8 @@
-import { Client, createClient } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
+import { Database } from "bun:sqlite";
+import { drizzle } from "drizzle-orm/bun-sqlite";
 
 export default function createDbClient(dbPath: string, schema: any) {
-  const client: Client = createClient({ url: `file:${dbPath}` });
-  return drizzle(client, { schema });
+  const cleanPath = dbPath.startsWith("file:") ? dbPath.replace("file:", "") : dbPath;
+  const sqlite = new Database(cleanPath);
+  return drizzle(sqlite, { schema });
 }
