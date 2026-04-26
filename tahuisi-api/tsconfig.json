@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
     "strict": true,
     "skipLibCheck": true,
     "lib": [
@@ -14,7 +15,15 @@
       "@common/*": ["./src/common/*"],
       "@article/*": ["./src/domain/article/*"],
       "@media/*": ["./src/domain/media/*"],
+      "@auth/*": ["./src/domain/auth/*"],
     },
-    "types": ["node"]
+    "types": ["node", "bun"],
+    "allowJs": true,
+    "skipDefaultLibCheck": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noPropertyAccessFromIndexSignature": false
   },
 }
