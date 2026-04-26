@@ -1,11 +1,11 @@
 import { mediaTypeEnum, Metadata, mimeTypeEnum } from "@media/media.model";
+import { randomUUIDv7 } from "bun";
 import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { uuidv7 } from "uuidv7";
 
 export const media = sqliteTable("media", {
   id: text("id", { mode: "text" })
     .primaryKey()
-    .$defaultFn(() => uuidv7()),
+    .$defaultFn(() => randomUUIDv7()),
   uploaderId: text("uploader_id").notNull(),
   mediaType: text("media_type", { enum: mediaTypeEnum }).notNull(),
   mimeType: text("mime_type", { enum: mimeTypeEnum }).notNull(),

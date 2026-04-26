@@ -1,6 +1,6 @@
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
-import { articles } from "./db/article.db.schema";
+import { articleAuthors, articles } from "@article/db/article.db.schema";
 
 export const articleStatusEnum = z.enum([
   "DRAFT",
@@ -20,16 +20,21 @@ export const articleSlugSchema = z
   .describe("Slug for the article URL");
 
 export const articleEntitySchema = createInsertSchema(articles, {
-  id: z.uuidv7(),
+  articleId: z.uuidv7(),
   slug: articleSlugSchema,
   title: z.string().min(1).max(100),
   excerpt: z.string().min(1).max(200),
-  content: z.string(),
+  body: z.string(),
   status: articleStatusEnum.default("DRAFT"),
   thumbnailId: z.uuidv7().nullable(),
   publishedAt: z.coerce.date(),
   updatedAt: z.coerce.date().nullable(),
   isLive: z.boolean().default(false),
+});
+
+export const articleAuthorsEntitySchema = createInsertSchema(articleAuthors, {
+  articleId: z.uuidv7(),
+  authorId: z.uuidv7(),
 });
 
 // export const headlineBaseSchema = articleBaseSchema.pick({

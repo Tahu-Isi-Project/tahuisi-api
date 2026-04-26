@@ -1,33 +1,5 @@
 import z from "zod";
-import { articleEntitySchema } from "./article.entity";
-
-export const headlineDto = articleEntitySchema
-  .pick({
-    slug: true,
-    title: true,
-    excerpt: true,
-  })
-  .extend({
-    thumbnailSrc: z.nullable(z.url()),
-    thumbnailAlt: z.nullable(z.string()),
-  });
-
-// export const ArticleSlug = z
-//   .string()
-//   .min(2)
-//   .max(100)
-//   .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
-//     message:
-//       "Must start and end with a letter or a number, only lowercase, and only '-' symbol.",
-//   })
-//   .describe("Slug for the article URL");
-
-// const articleStatusEnum = z.enum([
-//   "DRAFT",
-//   "PENDING_REVIEW",
-//   "PUBLISHED",
-//   "ARCHIVED",
-// ]);
+import { articleEntitySchema } from "@article/article.entity";
 
 // // From media service
 // export const thumbnailSchema = z.object({
@@ -45,19 +17,6 @@ export const headlineDto = articleEntitySchema
 //   avatarSrc: z.url().nullable()
 // })
 // export type Author = z.infer<typeof authorSchema>;
-
-// export const articleInsertDto = z.object({
-//   id: z.uuidv7(),
-//   slug: ArticleSlug,
-//   title: z.string().min(1).max(100),
-//   excerpt: z.string().min(1).max(200),
-//   content: z.string(),
-//   status: articleStatusEnum.default("DRAFT"),
-//   thumbnailId: z.uuidv7().nullable(),
-//   publishedAt: z.date(),
-//   isLive: z.boolean().default(false),
-// });
-// export type ArticleInsert = z.infer<typeof articleInsertDto>;
 
 // export const articleUpdateDto = articleInsertDto.omit({ publishedAt: true });
 // export type ArticleUpdate = z.infer<typeof articleUpdateDto>;

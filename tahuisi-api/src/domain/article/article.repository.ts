@@ -1,11 +1,12 @@
 import { and, desc, eq } from "drizzle-orm";
-import { articles } from "./db/article.db.schema";
-import { articleDb } from "./db/article.db.client";
+import { articleAuthors, articles } from "@article/db/article.db.schema";
+import { articleDb } from "@article/db/article.db.client";
+import { ArticleInsert } from "@article/article.types";
+import { randomUUIDv7 } from "bun";
 
 export default class ArticleRepository {
-  
-  async getLatestHeadlinesBase(limit: number) {
-    const res = await articleDb
+  async findLatestHeadlinesBase(limit: number) {
+    return await articleDb
       .select({
         slug: articles.slug,
         title: articles.title,
@@ -16,8 +17,58 @@ export default class ArticleRepository {
       .where(and(eq(articles.status, "PUBLISHED"), eq(articles.isLive, true)))
       .orderBy(desc(articles.publishedAt))
       .limit(limit);
+  }
 
-    return res;
+  async createArticle(articleData: ArticleInsert) {
+    await articleDb.transaction(async (tx) => {
+      const articleId = randomUUIDv7();
+
+      await tx.insert(articles).values({
+        articleId: articleId,
+        slug: articleData.article.slug,
+        title: articleData.article.title,
+        excerpt: articleData.article.excerpt,
+        body: articleData.article.body,
+        status: articleData.article.status,
+        thumbnailId: articleData.article.thumbnailId,
+        publishedAt: articleData.article.publishedAt,
+        isLive: articleData.article.isLive,
+      });
+
+      const authorRows = articleData.authorIds.map((authorId) => ({
+        articleId: articleId,
+        authorId: authorId,
+      }));
+
+      await tx.insert(articleAuthors).values(authorRows);
+    });
+  }
+
+  async findArticleBase(slug: string) {
+    return await articleDb
+      .select({
+        articleId: articles.articleId,
+        slug: articles.slug,
+        title: articles.title,
+        excerpt: articles.excerpt,
+        publishedAt: articles.publishedAt,
+        updatedAt: articles.updatedAt,
+        thumbnailId: articles.thumbnailId,
+        status: articles.status,
+        body: articles.body,
+      })
+      .from(articles)
+      .where(and(eq(articles.slug, slug)));
+  }
+
+  async softDeleteArticle(slug: string) {
+    await articleDb
+      .update(articles)
+      .set({
+        isLive: false,
+        status: "ARCHIVED",
+      })
+      .where(eq(articles.slug, slug));
   }
 
   // async getAuthorIds(articleIds: string[]): Promise<Record<string, string[]>> {
@@ -33,64 +84,12 @@ export default class ArticleRepository {
   //   }, {} as Record<string, string[]>);
   // }
 
-  // async createArticle(articleData: ArticleInsert): Promise<ArticleInsert[]> {
-  //   return await this.db
-  //     .insert(articles)
-  //     .values({
-  //       id: articleData.id || uuidv7(),
-  //       slug: articleData.slug,
-  //       title: articleData.title,
-  //       excerpt: articleData.excerpt,
-  //       content: articleData.content,
-  //       status: articleData.status,
-  //       thumbnailId: articleData.thumbnailId,
-  //       publishedAt: articleData.publishedAt,
-  //       isLive: articleData.isLive
-  //     })
-  //     .onConflictDoNothing()
-  //     .returning();
-  // }
-
-  // async getArticleBase(slug: string): Promise<ArticleBase[]> {
-  //   const articleBase = await this.db
-  //     .select({
-  //       id: articles.id,
-  //       slug: articles.slug,
-  //       title: articles.title,
-  //       excerpt: articles.excerpt,
-  //       publishedAt: articles.publishedAt,
-  //       updatedAt: articles.updatedAt,
-  //       thumbnailId: articles.thumbnailId,
-  //       status: articles.status,
-  //       content: articles.content,
-  //   })
-  //   .from(articles)
-  //   .where(and(
-  //     eq(articles.slug, slug)
-  //   ));
-
-  //   return articleBase;
-  // }
-
   // async updateArticle(slug: string, articleUpdateData: ArticleUpdate): Promise<ArticleUpdate[]> {
   //   return await this.db
   //     .update(articles)
   //     .set(articleUpdateData)
   //     .where(eq(articles.slug, slug))
   //     .returning();
-  // }
-
-  // async softDeleteArticle(slug: string): Promise<string | null> {
-  //   const [deletedArticleSlug] = await this.db
-  //     .update(articles)
-  //     .set({ isLive: false })
-  //     .where(and(
-  //       eq(articles.slug, slug),
-  //       eq(articles.isLive, true)
-  //     ))
-  //     .returning({ slug: articles.slug });
-
-  //   return deletedArticleSlug.slug ?? null;
   // }
 
   // async permanentDeleteArticle(slug: string): Promise<string | null> {

@@ -2,7 +2,7 @@ import ArticleRepository from "@article/article.repository";
 import { NotFoundError } from "@common/common.error";
 import MediaService from "@media/media.service";
 import { MediaColumn } from "@media/media.types";
-import { Headline } from "@article/article.types";
+import { ArticleInsert, Headline } from "@article/article.types";
 
 export default class ArticleService {
   private repo: ArticleRepository;
@@ -14,7 +14,7 @@ export default class ArticleService {
   }
 
   async getHeadlines(limit: number): Promise<Headline[]> {
-    const headlineBaseList = await this.repo.getLatestHeadlinesBase(limit);
+    const headlineBaseList = await this.repo.findLatestHeadlinesBase(limit);
 
     if (headlineBaseList.length === 0)
       throw new NotFoundError("No headlines found.");
@@ -39,4 +39,13 @@ export default class ArticleService {
       };
     });
   }
+
+  async createArticle(article: ArticleInsert) {
+    try {
+      await this.repo.createArticle(article);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  
 }
