@@ -5,63 +5,78 @@ import { randomUUIDv7 } from "bun";
 
 export default class AuthService {
   private repo: AuthRepository;
+  private expirationTime: number; 
+  private static UNAUTHORIZED_MSG = "Email/password provided is invalid.";
 
   constructor(authRepository: AuthRepository) {
     this.repo = authRepository;
+
+    const DEFAULT_EXPIRATION_TIME = 1000 * 60 * 60 * 3; // 3 hours
+
+    this.expirationTime = Bun.env.AUTH_SESSION_EXPIRATION 
+      ? Number.parseInt(Bun.env.AUTH_SESSION_EXPIRATION) 
+      : DEFAULT_EXPIRATION_TIME;
   }
 
   async registerUser(registerData: UserRegister) {
     const emailExists = await this.repo.findUserByEmail(registerData.email);
-    if (emailExists)
-      throw new ConflictError("Email already registered to another account.");
+    if (emailExists) throw new ConflictError("Email already registered to another account.");
 
     const usernameExists = await this.repo.findUserByUsername(registerData.username);
-    if (usernameExists)
-      throw new ConflictError("Username already taken.");
+    if (usernameExists) throw new ConflictError("Username already taken.");
     
     const passwordHash = await Bun.password.hash(registerData.password, "argon2id");
 
-    await this.repo.createUser({
+    const sanitizedRegisterData = {
       email: registerData.email, 
       username: registerData.username, 
-      passwordHash: passwordHash, 
+      passwordHash, 
       displayName: registerData.displayName, 
       gender: registerData.gender,
-    });
+    }
+
+    await this.repo.createUser(sanitizedRegisterData);
   }
 
-  async loginUser(loginData: UserLogin) {
-    const unauthorizedMessage = "Email/password provided is invalid."
-
+  async loginUser(loginData: UserLogin): Promise<string> {
     const userData = await this.repo.findUserByEmail(loginData.email, true);
-    if (!userData) throw new UnauthorizedError(unauthorizedMessage);
+    if (!userData) throw new UnauthorizedError(AuthService.UNAUTHORIZED_MSG);
 
     const isVerified = await Bun.password.verify(loginData.password, userData.passwordHash);
-    if (!isVerified) throw new UnauthorizedError(unauthorizedMessage);
+    if (!isVerified) throw new UnauthorizedError(AuthService.UNAUTHORIZED_MSG);
+
+    const currentSessions = await this.repo.findSessionByUserId(userData.userId);
+    if (currentSessions.length !== 0) {
+      await this.repo.deleteSessionByUserIdAndUserAgentAndIpAddress({ 
+        userId: userData.userId, 
+        userAgent: loginData.userAgent, 
+        ipAddress: loginData.ipAddress
+      });
+    }
 
     const sessionId = randomUUIDv7();
-    const ONE_DAY = 1000 * 60 * 60 * 24;
+
     await this.repo.createSession({
       sessionId: sessionId,
       userId: userData.userId,
-      expiresAt: new Date(Date.now() + ONE_DAY)
+      expiresAt: new Date(Date.now() + this.expirationTime),
+      userAgent: loginData.userAgent,
+      ipAddress: loginData.ipAddress
     });
 
-    return { sessionId };
+    return sessionId;
   }
 
   async logoutUser(sessionId: string) {
-    const session = await this.repo.findSessionById(sessionId);
-    if (!session) return;
-
-    await this.repo.deleteSessionById(sessionId);
+    await this.repo.deleteSessionBySessionId(sessionId);
   }
 
-  async getSession(sessionId: string) {
-    const session = await this.repo.findSessionById(sessionId);
-    if (!session)
-      throw new UnauthorizedError("Session invalid.");
+  // for development
+  // async getSessions() {
+  //   return await this.repo.findAllSessions();
+  // }
 
-    return session;
-  }
+  // async deleteAllSessions() {
+  //   await this.repo.deleteAllSessions();
+  // }
 }

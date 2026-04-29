@@ -24,6 +24,6 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "noUnusedLocals": true,
-    "noPropertyAccessFromIndexSignature": false
-  },
+    "noPropertyAccessFromIndexSignature": false,
+  }
 }

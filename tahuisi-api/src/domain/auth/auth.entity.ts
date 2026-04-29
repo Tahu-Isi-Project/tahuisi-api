@@ -11,18 +11,20 @@ export const userEntitySchema = createInsertSchema(users, {
     .max(16),
   realUsername: z.string(),
   passwordHash: z.string(),
-  role: z.enum(["USER", "ADMIN"]),
+  role: z.enum(["user", "admin"]),
   displayName: z.string(),
-  gender: z.enum(["MALE", "FEMALE", "OTHER"]),
+  gender: z.enum(["male", "female", "other"]),
   avatarId: z.uuidv7().nullable(),
   registerDate: z.date(),
   lastLogin: z.date(),
-  userStatus: z.enum(["ACTIVE", "INACTIVE", "BANNED"]),
+  userStatus: z.enum(["active", "inactive", "banned"]),
   bio: z.string().nullable()
 });
 
 export const userSessionEntitySchema = createInsertSchema(sessions, {
   sessionId: z.uuidv7(),
   userId: z.uuidv7(),
-  expiresAt: z.date()
+  expiresAt: z.date(),
+  userAgent: z.string(),
+  ipAddress: z.string()
 });

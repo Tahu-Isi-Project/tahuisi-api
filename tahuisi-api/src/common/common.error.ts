@@ -13,8 +13,8 @@ export class BadRequestError extends HTTPException {
 }
 
 export class UnauthorizedError extends HTTPException {
-  constructor(message: string) {
-    super(401, { message });
+  constructor(message?: string) {
+    super(401, { message: message || "Unauthorized" });
   }
 }
 

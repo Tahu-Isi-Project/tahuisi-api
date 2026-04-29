@@ -1,0 +1,39 @@
+@BASE_URL = http://localhost:3000/api/v1
+
+GET {{BASE_URL}}
+
+###
+
+POST {{BASE_URL}}/auth/register
+Content-Type: application/json
+
+{
+    "email": "ryhun@emailkeren.com",
+    "username": "ryhun",
+    "gender": "male",
+    "displayName": "ryhun was here",
+    "password": "verysecretpassword"
+}
+
+###
+
+POST {{BASE_URL}}/auth/login
+Content-Type: application/json
+
+{
+    "email": "ryhun@emailkeren.com",
+    "password": "verysecretpassword"
+}
+
+###
+
+POST {{BASE_URL}}/auth/logout
+Cookie: session_id=019dda17-02df-7000-a4ce-b54f4aaefb99.OlSxEsqCegk6epdbYgiAF78sn8ofOJybUlbtYlsgyU8%3D; Max-Age=86400; Path=/; HttpOnly; Secure; SameSite=Lax
+
+###
+
+GET {{BASE_URL}}/auth/sessions
+
+###
+
+DELETE {{BASE_URL}}/auth/sessions
