@@ -8,6 +8,6 @@ export function customValidator<
 >(target: T, schema: S) {
   return zValidator(target, schema, (result, c) => {
     if (!result.success)
-      return c.json({ status: "Bad request", error: result.error }, 400);
+      return c.json({ status: "Bad request", error: result.error.issues }, 400);
   });
 }
