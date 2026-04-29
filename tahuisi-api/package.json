@@ -1,10 +1,13 @@
 {
   "name": "tahuisi-api",
   "type": "module",
+  "main": "src/index.ts",
   "scripts": {
-    "dev": "bun dev",
-    "build": "bun build",
-    "test": "bun test"
+    "dev": "bun --hot ./src/index.ts",
+    "build": "bun build ./src/index.ts --outdir ./dist --minify",
+    "test": "bun test",
+    "start": "NODE_ENV=production bun ./dist/index.js",
+    "start:binary": "./dist/tahuisi-api"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.6",
