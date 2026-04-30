@@ -4,7 +4,9 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "NODE_ENV=development bun --hot ./src/index.ts",
-    "build": "bun build ./src/index.ts --outdir ./dist --minify --target bun",
+    "gen:auth": "bunx drizzle-kit generate --config=src/domain/auth/db/auth.db.config.ts",
+    "migrate:auth": "bunx drizzle-kit migrate --config=src/domain/auth/db/auth.db.config.ts",
+    "build": "bun run gen:auth && bun run migrate:auth && bun build ./src/index.ts --outdir ./dist --target bun --minify --sourcemap",
     "test": "bun test",
     "start": "NODE_ENV=production bun ./dist/index.js"
   },

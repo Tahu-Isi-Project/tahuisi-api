@@ -1,6 +1,10 @@
 import Auth from "@auth/auth.controller";
+import { authDb } from "@auth/db/auth.db.client";
+import { migrate } from "drizzle-orm/bun-sqlite/migrator";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
+
+migrate(authDb, { migrationsFolder: "./src/domain/auth/db/migrations" });
 
 const app = new Hono();
 

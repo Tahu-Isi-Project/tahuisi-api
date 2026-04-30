@@ -1,0 +1,15 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tahuisi-api
+    ports:
+      - "3000:3000"
+    environment:
+      - AUTH_DB_FILE_PATH=${AUTH_DB_FILE_PATH}
+      - COOKIE_SECRET=${COOKIE_SECRET}
+      - NODE_ENV=production
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
