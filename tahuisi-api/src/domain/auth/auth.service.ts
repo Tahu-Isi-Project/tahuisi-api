@@ -6,7 +6,6 @@ import { randomUUIDv7 } from "bun";
 export default class AuthService {
   private repo: AuthRepository;
   private expirationTime: number; 
-  private static UNAUTHORIZED_MSG = "Email/password provided is invalid.";
 
   constructor(authRepository: AuthRepository) {
     this.repo = authRepository;
@@ -19,12 +18,6 @@ export default class AuthService {
   }
 
   async registerUser(registerData: UserRegister) {
-    const emailExists = await this.repo.findUserByEmail(registerData.email);
-    if (emailExists) throw new ConflictError("Email already registered to another account.");
-
-    const usernameExists = await this.repo.findUserByUsername(registerData.username);
-    if (usernameExists) throw new ConflictError("Username already taken.");
-    
     const passwordHash = await Bun.password.hash(registerData.password, "argon2id");
 
     const sanitizedRegisterData = {
@@ -35,29 +28,29 @@ export default class AuthService {
       gender: registerData.gender,
     }
 
-    await this.repo.createUser(sanitizedRegisterData);
+    try {
+      return await this.repo.createUser(sanitizedRegisterData);
+    } catch (err: any) {
+      if (err.code === "SQLITE_CONSTRAINT_UNIQUE") {
+        const msg = err.message as string;
+        if (msg.includes("users.username") || msg.includes("users.real_username") || msg.includes("users.email"))
+          throw new ConflictError("Username/email already registered.");
+      }
+
+      throw err;
+    }
   }
 
   async loginUser(loginData: UserLogin): Promise<string> {
     const userData = await this.repo.findUserByEmail(loginData.email, true);
-    if (!userData) throw new UnauthorizedError(AuthService.UNAUTHORIZED_MSG);
 
-    const isVerified = await Bun.password.verify(loginData.password, userData.passwordHash);
-    if (!isVerified) throw new UnauthorizedError(AuthService.UNAUTHORIZED_MSG);
-
-    const currentSessions = await this.repo.findSessionByUserId(userData.userId);
-    if (currentSessions.length !== 0) {
-      await this.repo.deleteSessionByUserIdAndUserAgentAndIpAddress({ 
-        userId: userData.userId, 
-        userAgent: loginData.userAgent, 
-        ipAddress: loginData.ipAddress
-      });
-    }
+    const isVerified = userData && await Bun.password.verify(loginData.password, userData.passwordHash);
+    if (!isVerified) throw new UnauthorizedError("Email/password provided is invalid.");
 
     const sessionId = randomUUIDv7();
-
+    
     await this.repo.createSession({
-      sessionId: sessionId,
+      sessionId,
       userId: userData.userId,
       expiresAt: new Date(Date.now() + this.expirationTime),
       userAgent: loginData.userAgent,
@@ -79,6 +72,7 @@ export default class AuthService {
     await this.repo.deleteSessionsByUserId(userId);
   }
 
+  // for development
   // async getSessions() {
   //   return await this.repo.findAllSessions();
   // }

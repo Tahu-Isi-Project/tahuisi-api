@@ -7,6 +7,7 @@ CREATE TABLE `sessions` (
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
+CREATE UNIQUE INDEX `unique_session_constraint` ON `sessions` (`user_id`,`user_agent`,`ip_address`);--> statement-breakpoint
 CREATE TABLE `users` (
 	`user_id` text PRIMARY KEY NOT NULL,
 	`email` text NOT NULL,

@@ -48,21 +48,27 @@ auth.post("/login", validateUserLoginBody, async (c) => {
 
 auth.post("/logout", authMiddleware, async (c) => {
   const sessionId = c.get("sessionId");
-
   await authService.logoutUser(sessionId);
-
   deleteCookie(c, "session_id", { path: "/" });
   return c.json({ message: "Logout successful" }, 200);
 });
 
 auth.post("/logout-all", authMiddleware, async (c) => {
   const userId = c.get("userId");
-
   await authService.logoutAllDevices(userId);
-
   deleteCookie(c, "session_id", { path: "/" });
-
   return c.json({ message: "Logged out from all devices" });
 });
+
+// for development
+// auth.get("/sessions", async (c) => {
+//   const sessions = await authService.getSessions();
+//   return c.json({ sessions }, 200);
+// });
+
+// auth.delete("/sessions", async (c) => {
+//   await authService.deleteAllSessions();
+//   return c.json({ message: "All sessions deleted." }, 200);
+// });
 
 export default auth;

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { text, sqliteTable as table, integer, check } from "drizzle-orm/sqlite-core";
+import { text, sqliteTable as table, integer, check, unique } from "drizzle-orm/sqlite-core";
 
 export const users = table("users", {
   userId: text("user_id").primaryKey(),
@@ -23,9 +23,9 @@ export const users = table("users", {
     .notNull()
     .default("active"),
   bio: text("bio"),
-}, (table) => [
+}, (t) => [
   check("last_login_check", 
-    sql`${table.lastLogin} >= ${table.registerDate}`
+    sql`${t.lastLogin} >= ${t.registerDate}`
   )
 ]);
 
@@ -37,4 +37,6 @@ export const sessions = table("sessions", {
   expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
   userAgent: text("user_agent").notNull(),
   ipAddress: text("ip_address").notNull()
-});
+}, (t) => [
+  unique("unique_session_constraint").on(t.userId, t.userAgent, t.ipAddress)
+]);

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "f417c982-0d30-41d3-8f88-9f3898d8bb84",
+  "id": "1d6869a3-69e9-47a2-b104-6610e50ebb01",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "sessions": {
@@ -43,7 +43,17 @@
           "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "unique_session_constraint": {
+          "name": "unique_session_constraint",
+          "columns": [
+            "user_id",
+            "user_agent",
+            "ip_address"
+          ],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {
         "sessions_user_id_users_user_id_fk": {
           "name": "sessions_user_id_users_user_id_fk",

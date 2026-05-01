@@ -38,27 +38,41 @@ export default class AuthRepository {
 
     return res;
   }
-
+  
   async createUser(data: SanitizedUserRegister) {
-    await authDb.insert(users).values({
-      userId: randomUUIDv7(),
-      email: data.email.toLowerCase(),
-      username: data.username.toLowerCase(),
-      realUsername: data.username,
-      passwordHash: data.passwordHash,
-      gender: data.gender,
-      displayName: data.displayName,
-    });
+    const [newUser] = await authDb
+      .insert(users)
+      .values({
+        userId: randomUUIDv7(),
+        email: data.email.toLowerCase(),
+        username: data.username.toLowerCase(),
+        realUsername: data.username,
+        passwordHash: data.passwordHash,
+        gender: data.gender,
+        displayName: data.displayName,
+      })
+      .returning({ id: users.userId });
+    
+    return newUser;
   }
 
   async createSession(sessionData: UserSession) {
-    await authDb.insert(sessions).values({
-      sessionId: sessionData.sessionId,
-      userId: sessionData.userId,
-      expiresAt: sessionData.expiresAt,
-      userAgent: sessionData.userAgent,
-      ipAddress: sessionData.ipAddress,
-    });
+    await authDb
+      .insert(sessions)
+      .values({
+        sessionId: sessionData.sessionId,
+        userId: sessionData.userId,
+        expiresAt: sessionData.expiresAt,
+        userAgent: sessionData.userAgent,
+        ipAddress: sessionData.ipAddress,
+      })
+      .onConflictDoUpdate({
+        target: [sessions.userId, sessions.userAgent, sessions.ipAddress],
+        set: {
+          sessionId: sessionData.sessionId,
+          expiresAt: sessionData.expiresAt
+        }
+      });
   }
 
   async findSessionBySessionId(sessionId: string) {
@@ -115,6 +129,7 @@ export default class AuthRepository {
       );
   }
 
+  // for development
   // async findAllSessions() {
   //   return await authDb.select().from(sessions);
   // }
