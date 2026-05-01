@@ -1,7 +1,7 @@
-import { mediaDb } from "@media/db/media.db.client";
 import { media } from "@media/db/schema";
 import { getTableColumns, inArray } from "drizzle-orm";
 import { MediaColumn } from "@media/media.types";
+import { mediaDb } from "@media/index";
 
 export default class MediaRepository {
   private mediaColumns = getTableColumns(media);
