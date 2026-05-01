@@ -29,4 +29,14 @@ app.onError((err, c) => {
 
 app.route("/api/v1/auth", Auth);
 
-export default app;
+const server = Bun.serve({
+  port: Bun.env.PORT ?? 3000,
+  fetch: app.fetch,
+});
+
+console.log(`Listening on port ${server.port}`);
+
+process.on("SIGTERM", () => {
+  server.stop();
+  process.exit(0);
+});
