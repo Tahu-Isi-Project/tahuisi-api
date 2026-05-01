@@ -1,5 +1,5 @@
 import { mediaDb } from "@media/db/media.db.client";
-import { media } from "@media/db/media.db.schema";
+import { media } from "@media/db/schema";
 import { getTableColumns, inArray } from "drizzle-orm";
 import { MediaColumn } from "@media/media.types";
 

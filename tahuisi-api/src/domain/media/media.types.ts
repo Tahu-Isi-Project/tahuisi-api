@@ -1,3 +1,3 @@
-import { media } from "@media/db/media.db.schema";
+import { media } from "@media/db/schema";
 
 export type MediaColumn = keyof typeof media.$inferSelect;

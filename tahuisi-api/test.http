@@ -28,7 +28,7 @@ Content-Type: application/json
 ###
 
 POST {{BASE_URL}}/auth/logout
-Cookie: session_id=019dda17-02df-7000-a4ce-b54f4aaefb99.OlSxEsqCegk6epdbYgiAF78sn8ofOJybUlbtYlsgyU8%3D; Max-Age=86400; Path=/; HttpOnly; Secure; SameSite=Lax
+Cookie: 019de1dc-ce94-7000-9698-36ae6429a899.0ZL1dLEwTZNIeGK43YhDRB6zVC8qFuH42R40ZbOkMhk%3D;
 
 ###
 

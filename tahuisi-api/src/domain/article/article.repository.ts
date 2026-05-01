@@ -1,5 +1,5 @@
 import { and, desc, eq } from "drizzle-orm";
-import { articleAuthors, articles } from "@article/db/article.db.schema";
+import { articleAuthors, articles } from "@article/db/schema";
 import { articleDb } from "@article/db/article.db.client";
 import { ArticleInsert } from "@article/article.types";
 import { randomUUIDv7 } from "bun";

@@ -16,7 +16,7 @@
       "@article/*": ["./src/domain/article/*"],
       "@media/*": ["./src/domain/media/*"],
       "@auth/*": ["./src/domain/auth/*"],
-    },
+    },    
     "types": ["node", "bun"],
     "allowJs": true,
     "skipDefaultLibCheck": true,
@@ -25,5 +25,6 @@
     "noImplicitOverride": true,
     "noUnusedLocals": true,
     "noPropertyAccessFromIndexSignature": false,
-  }
+  },
+  "exclude": ["./dist", "./node_modules", "./data", "./migrations"]
 }

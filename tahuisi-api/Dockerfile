@@ -12,15 +12,20 @@ RUN bun run build
 FROM oven/bun:1.3.13-alpine AS deploy-stage
 WORKDIR /app
 
-RUN mkdir -p /app/data
+USER root
 
-COPY --from=build-stage /app/dist /app/dist
-COPY --from=build-stage /app/src/domain/auth/db/migrations /app/src/domain/auth/db/migrations
+RUN mkdir -p /app/data && chown -R 1000:1000 /app/data
 
-RUN chown -R bun:bun /app/data
+COPY --from=build-stage /app/dist/index.js ./index.js
+COPY --from=build-stage /app/migrations ./migrations
 
+RUN chown -R 1000:1000 /app
 USER bun
+
 ENV NODE_ENV=production
+ENV MIGRATIONS_BASE_PATH=/app/migrations
+ENV DATABASE_BASE_PATH=/app/data
+
 EXPOSE 3000
 
-CMD ["bun", "./dist/index.js"]
+CMD ["bun", "index.js"]

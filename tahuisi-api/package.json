@@ -3,12 +3,10 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "dev": "NODE_ENV=development bun --hot ./src/index.ts",
-    "gen:auth": "bunx drizzle-kit generate --config=src/domain/auth/db/auth.db.config.ts",
-    "migrate:auth": "bunx drizzle-kit migrate --config=src/domain/auth/db/auth.db.config.ts",
-    "build": "bun run gen:auth && bun run migrate:auth && bun build ./src/index.ts --outdir ./dist --target bun --minify --sourcemap",
-    "test": "bun test",
-    "start": "NODE_ENV=production bun ./dist/index.js"
+    "dev": "NODE_ENV=development bun run --hot ./src/index.ts",
+    "build": "bun ./src/build.ts",
+    "start": "bun ./dist/index.js",
+    "test": "bun test"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.7.6",

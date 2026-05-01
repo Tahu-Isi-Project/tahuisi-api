@@ -1,4 +1,4 @@
-import * as schema from "@auth/db/auth.db.schema";
+import * as schema from "@auth/db/schema";
 import createDbClient from "@common/common.db-client";
 
 const dbPath = Bun.env.AUTH_DB_FILE_PATH;

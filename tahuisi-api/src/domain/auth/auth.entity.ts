@@ -1,5 +1,5 @@
 import { createInsertSchema } from "drizzle-zod";
-import { sessions, users } from "@auth/db/auth.db.schema";
+import { sessions, users } from "@auth/db/schema";
 import z from "zod";
 
 export const userEntitySchema = createInsertSchema(users, {

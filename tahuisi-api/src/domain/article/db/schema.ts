@@ -7,14 +7,13 @@ import {
   check 
 } from "drizzle-orm/sqlite-core";
 import { relations, sql } from "drizzle-orm";
-import { randomUUIDv7 } from "bun";
 
 //==============================================================================
 //                                Articles Table
 //==============================================================================
 
 export const articles = sqliteTable("articles", {
-  articleId: text("article_id").primaryKey().$defaultFn(() => randomUUIDv7()), 
+  articleId: text("article_id").primaryKey(), 
   slug: text("slug").notNull().unique(),
   title: text("title").notNull(),
   excerpt: text("excerpt").notNull(),

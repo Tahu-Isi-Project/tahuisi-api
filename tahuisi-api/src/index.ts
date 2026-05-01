@@ -1,12 +1,11 @@
 import Auth from "@auth/auth.controller";
-import { authDb } from "@auth/db/auth.db.client";
-import { migrate } from "drizzle-orm/bun-sqlite/migrator";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-
-migrate(authDb, { migrationsFolder: "./src/domain/auth/db/migrations" });
+import { initDatabases } from "./init";
 
 const app = new Hono();
+
+await initDatabases();
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) {

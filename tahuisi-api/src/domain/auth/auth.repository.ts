@@ -1,8 +1,8 @@
 import { SanitizedUserRegister, UserSession } from "@auth/auth.types";
-import { authDb } from "@auth/db/auth.db.client";
-import { sessions, users } from "@auth/db/auth.db.schema";
+import { sessions, users } from "@auth/db/schema";
 import { randomUUIDv7 } from "bun";
 import { and, eq } from "drizzle-orm";
+import { authDb } from ".";
 
 export default class AuthRepository {
   async findUserByEmail(
