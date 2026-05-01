@@ -63,7 +63,7 @@ export default class AuthRepository {
 
   async findSessionBySessionId(sessionId: string) {
     const [session] = await authDb
-      .select({ sessionId: sessions.sessionId })
+      .select()
       .from(sessions)
       .where(eq(sessions.sessionId, sessionId));
 
@@ -84,7 +84,15 @@ export default class AuthRepository {
   }
 
   async deleteSessionBySessionId(sessionId: string) {
-    await authDb.delete(sessions).where(eq(sessions.sessionId, sessionId));
+    await authDb
+      .delete(sessions)
+      .where(eq(sessions.sessionId, sessionId));
+  }
+
+  async deleteSessionsByUserId(userId: string) {
+    await authDb
+      .delete(sessions)
+      .where(eq(sessions.userId, userId));
   }
 
   async deleteSessionByUserIdAndUserAgentAndIpAddress({
@@ -107,11 +115,11 @@ export default class AuthRepository {
       );
   }
 
-  async findAllSessions() {
-    return await authDb.select().from(sessions);
-  }
+  // async findAllSessions() {
+  //   return await authDb.select().from(sessions);
+  // }
 
-  async deleteAllSessions() {
-    await authDb.delete(sessions);
-  }
+  // async deleteAllSessions() {
+  //   await authDb.delete(sessions);
+  // }
 }

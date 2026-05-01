@@ -67,9 +67,18 @@ export default class AuthService {
     return sessionId;
   }
 
+  async getSession(sessionId: string) {
+    return await this.repo.findSessionBySessionId(sessionId);
+  }
+
   async logoutUser(sessionId: string) {
     await this.repo.deleteSessionBySessionId(sessionId);
   }
+
+  async logoutAllDevices(userId: string) {
+    await this.repo.deleteSessionsByUserId(userId);
+  }
+
   // async getSessions() {
   //   return await this.repo.findAllSessions();
   // }

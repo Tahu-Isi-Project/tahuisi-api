@@ -16,6 +16,8 @@
       "@article/*": ["./src/domain/article/*"],
       "@media/*": ["./src/domain/media/*"],
       "@auth/*": ["./src/domain/auth/*"],
+      "@middleware/*": ["./src/middleware/*"],
+      "@/*": ["./src/*"]
     },    
     "types": ["node", "bun"],
     "allowJs": true,
