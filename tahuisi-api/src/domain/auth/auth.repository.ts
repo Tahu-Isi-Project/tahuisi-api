@@ -1,7 +1,7 @@
 import { SanitizedUserRegister, UserSession } from "@auth/auth.types";
 import { sessions, users } from "@auth/db/schema";
 import { randomUUIDv7 } from "bun";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { authDb } from ".";
 
 export default class AuthRepository {
@@ -107,26 +107,6 @@ export default class AuthRepository {
     await authDb
       .delete(sessions)
       .where(eq(sessions.userId, userId));
-  }
-
-  async deleteSessionByUserIdAndUserAgentAndIpAddress({
-    userId,
-    userAgent,
-    ipAddress,
-  }: {
-    userId: string;
-    userAgent: string;
-    ipAddress: string;
-  }) {
-    await authDb
-      .delete(sessions)
-      .where(
-        and(
-          eq(sessions.userId, userId),
-          eq(sessions.userAgent, userAgent),
-          eq(sessions.ipAddress, ipAddress),
-        ),
-      );
   }
 
   // for development
