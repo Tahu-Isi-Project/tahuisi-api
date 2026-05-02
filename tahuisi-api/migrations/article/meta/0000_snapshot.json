@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "f0a56188-60b6-4e5b-a12f-f544ca5114ed",
+  "id": "7b56d721-3fc9-4de3-ba30-5f080f22fab4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "article_authors": {
@@ -117,7 +117,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "(strftime('%s', 'now'))"
+          "default": "(unixepoch())"
         },
         "published_at": {
           "name": "published_at",
@@ -163,9 +163,21 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {
-        "live_status_check": {
-          "name": "live_status_check",
-          "value": "NOT (\"articles\".\"is_live\" = 1 AND \"articles\".\"status\" != 'PUBLISHED')"
+        "check_live_status": {
+          "name": "check_live_status",
+          "value": "\"articles\".\"is_live\" = 0 OR (\"articles\".\"is_live\" = 1 AND \"articles\".\"status\" = 'PUBLISHED')"
+        },
+        "check_publish_date": {
+          "name": "check_publish_date",
+          "value": "\"articles\".\"published_at\" IS NULL OR \"articles\".\"created_at\" <= \"articles\".\"published_at\""
+        },
+        "check_update_created": {
+          "name": "check_update_created",
+          "value": "\"articles\".\"updated_at\" IS NULL OR \"articles\".\"updated_at\" >= \"articles\".\"created_at\""
+        },
+        "check_update_published": {
+          "name": "check_update_published",
+          "value": "\"articles\".\"updated_at\" IS NULL OR \"articles\".\"published_at\" IS NULL OR \"articles\".\"updated_at\" >= \"articles\".\"published_at\""
         }
       }
     }

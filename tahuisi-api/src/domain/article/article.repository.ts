@@ -14,7 +14,10 @@ export default class ArticleRepository {
         thumbnailId: articles.thumbnailId,
       })
       .from(articles)
-      .where(and(eq(articles.status, "PUBLISHED"), eq(articles.isLive, true)))
+      .where(and(
+        eq(articles.status, "PUBLISHED"), 
+        eq(articles.isLive, true)
+      ))
       .orderBy(desc(articles.publishedAt))
       .limit(limit);
   }
@@ -22,9 +25,9 @@ export default class ArticleRepository {
   async createArticle(articleData: ArticleInsert) {
     await articleDb.transaction(async (tx) => {
       const articleId = randomUUIDv7();
-
+      
       await tx.insert(articles).values({
-        articleId: articleId,
+        articleId,
         slug: articleData.article.slug,
         title: articleData.article.title,
         excerpt: articleData.article.excerpt,
@@ -35,17 +38,17 @@ export default class ArticleRepository {
         isLive: articleData.article.isLive,
       });
 
-      const authorRows = articleData.authorIds.map((authorId) => ({
-        articleId: articleId,
-        authorId: authorId,
+      const authors = articleData.authorIds.map((authorId) => ({ 
+        articleId, 
+        authorId
       }));
 
-      await tx.insert(articleAuthors).values(authorRows);
+      await tx.insert(articleAuthors).values(authors);
     });
   }
 
   async findArticleBase(slug: string) {
-    return await articleDb
+    const [articleBase] = await articleDb
       .select({
         articleId: articles.articleId,
         slug: articles.slug,
@@ -58,7 +61,19 @@ export default class ArticleRepository {
         body: articles.body,
       })
       .from(articles)
-      .where(and(eq(articles.slug, slug)));
+      .where(eq(articles.slug, slug));
+    
+    return articleBase;
+  }
+
+  async findAuthorIdsByArticleId(articleId: string) {
+    return await articleDb
+      .select({
+        articleId: articleAuthors.articleId,
+        authorId: articleAuthors.authorId
+      })
+      .from(articleAuthors)
+      .where(eq(articleAuthors.articleId, articleId));
   }
 
   async softDeleteArticle(slug: string) {
@@ -71,8 +86,10 @@ export default class ArticleRepository {
       .where(eq(articles.slug, slug));
   }
 
+
+
   // async getAuthorIds(articleIds: string[]): Promise<Record<string, string[]>> {
-  //   const rows = await this.db
+  //   const rows = await articleDb
   //     .select({ articleId: articleAuthors.articleId, authorId: articleAuthors.authorId })
   //     .from(articleAuthors)
   //     .where(inArray(articleAuthors.articleId, articleIds));
@@ -100,4 +117,9 @@ export default class ArticleRepository {
 
   //   return deletedArticleSlug.slug ?? null;
   // }
+
+  // for development
+  async deleteAllArticles() {
+    await articleDb.delete(articles);
+  }
 }

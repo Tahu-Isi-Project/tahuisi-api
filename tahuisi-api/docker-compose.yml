@@ -9,4 +9,5 @@ services:
       - "3000:3000"
     environment:
       - COOKIE_SECRET=${COOKIE_SECRET}
+      - INTERNAL_SECRET=${INTERNAL_SECRET}
       - NODE_ENV=production

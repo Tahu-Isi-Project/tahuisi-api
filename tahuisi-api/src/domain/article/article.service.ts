@@ -1,8 +1,9 @@
 import ArticleRepository from "@article/article.repository";
-import { NotFoundError } from "@common/common.error";
+import { ConflictError, NotFoundError, UnprocessableContentError } from "@common/common.http-error";
 import MediaService from "@media/media.service";
 import { MediaColumn } from "@media/media.types";
-import { ArticleInsert, Headline } from "@article/article.types";
+import { Article, ArticleInsert, Headline } from "@article/article.types";
+import { authService } from "@common/common.singleton";
 
 export default class ArticleService {
   private repo: ArticleRepository;
@@ -11,6 +12,11 @@ export default class ArticleService {
   constructor(articleRepository: ArticleRepository, mediaService: MediaService) {
     this.repo = articleRepository;
     this.mediaService = mediaService;
+  }
+
+  private async getMediaList(mediaIds: string[]) {
+    const mediaQuery = ["altText", "r2Key"] as MediaColumn[];
+    return await this.mediaService.queryByIds(mediaQuery, mediaIds);
   }
 
   async getHeadlines(limit: number): Promise<Headline[]> {
@@ -23,8 +29,7 @@ export default class ArticleService {
       base.thumbnailId !== null ? [base.thumbnailId] : []
     );
 
-    const mediaQuery = ["altText", "r2Key"] as MediaColumn[];
-    const mediaList = await this.mediaService.queryByIds(mediaQuery, thumbnailIdList);
+    const mediaList = await this.getMediaList(thumbnailIdList);
 
     const mediaMap = new Map(mediaList.map((media) => [media.id, media]));
 
@@ -41,11 +46,58 @@ export default class ArticleService {
   }
 
   async createArticle(article: ArticleInsert) {
+    const authorsList = await authService.getDisplayNames(article.authorIds);
+
+    if (authorsList.length !== article.authorIds.length) {
+      const foundIds = new Set(authorsList.map((a) => a.userId));
+      const missingIds = article.authorIds.filter((id) => !foundIds.has(id));
+      throw new UnprocessableContentError(
+        `Provided authorIds do not exist: ${missingIds.join(", ")}`
+      );
+    }
+
     try {
       await this.repo.createArticle(article);
-    } catch (error) {
-      console.error(error);
+    } catch (err: any) {
+      if (err.code === "SQLITE_CONSTRAINT_UNIQUE" && err.message.includes("articles.slug"))
+        throw new ConflictError(`Slug '${article.article.slug}' already exists.`);
+
+      throw err;
+    }
+  }
+
+  async getArticle(slug: string): Promise<Article> {
+    const articleBase = await this.repo.findArticleBase(slug);
+
+    if (!articleBase) throw new NotFoundError("Article not found.");
+
+    const mediaList = articleBase.thumbnailId 
+      ? await this.getMediaList([articleBase.thumbnailId]) 
+      : [];
+
+    const authorsData = await this.repo.findAuthorIdsByArticleId(articleBase.articleId);
+    const authorIds = authorsData.map((data) => data.authorId);
+
+    const authorNamesRaw = await authService.getDisplayNames(authorIds);
+    const authorNames = authorNamesRaw.map((data) => data.displayName);
+
+    return {
+      article: {
+        slug: articleBase.slug,
+        title: articleBase.title,
+        excerpt: articleBase.excerpt,
+        body: articleBase.body,
+        publishedAt: articleBase.publishedAt,
+        updatedAt: articleBase.updatedAt,
+        thumbnailSrc: mediaList[0] ? mediaList[0].r2Key : null,
+        thumbnailAlt: mediaList[0] ? mediaList[0].altText : null
+      },
+      authorNames
     }
   }
   
+  // for development
+  async deleteAllArticles() {
+    await this.repo.deleteAllArticles();
+  }
 }

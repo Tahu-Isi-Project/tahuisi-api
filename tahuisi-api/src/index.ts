@@ -2,6 +2,7 @@ import Auth from "@auth/auth.controller";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { initDatabases } from "./init";
+import Article from "@article/article.controller";
 
 const app = new Hono();
 
@@ -27,7 +28,9 @@ app.onError((err, c) => {
   );
 });
 
+// Routes
 app.route("/api/v1/auth", Auth);
+app.route("/api/v1/article", Article);
 
 const server = Bun.serve({
   port: Bun.env.PORT ?? 3000,

@@ -27,7 +27,7 @@ export const articleEntitySchema = createInsertSchema(articles, {
   body: z.string(),
   status: articleStatusEnum.default("DRAFT"),
   thumbnailId: z.uuidv7().nullable(),
-  publishedAt: z.coerce.date(),
+  publishedAt: z.coerce.date().nullable(),
   updatedAt: z.coerce.date().nullable(),
   isLive: z.boolean().default(false),
 });

@@ -1,4 +1,4 @@
-import { NotFoundError } from "@common/common.error";
+import { NotFoundError } from "@common/common.http-error";
 
 export class ArticleNotFoundError extends NotFoundError {
   constructor(slug: string) {

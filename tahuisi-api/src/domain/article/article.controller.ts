@@ -1,34 +1,32 @@
 import { Hono } from "hono";
-import { validateArticleInsertBody, validateLimitQuery } from "@article/article.validator";
+import { validateArticleInsertBody, validateLimitQuery, validateSlugParam } from "@article/article.validator";
 import { articleService } from "@common/common.singleton";
+import { internalAuthMiddleware } from "@middleware/middleware.internal-auth";
 
-const app = new Hono();
+const article = new Hono();
 
-app.basePath("/article");
+article.use("*", internalAuthMiddleware);
 
-app.get("/headlines", validateLimitQuery, async (c) => {
+article.get("/headlines", validateLimitQuery, async (c) => {
   const { limit } = c.req.valid("query");
   const headlines = await articleService.getHeadlines(limit);
 
   return c.json(headlines);
 });
 
-
-const article = app.basePath("/post");
-
 article.post("/", validateArticleInsertBody, async (c) => {
   const body = c.req.valid("json");
-  const insertedArticle = await articleService.createArticle(body);
+  await articleService.createArticle(body);
 
-  return c.json({ message: "Article created", article: insertedArticle }, 201);
+  return c.json({ message: "Article created" }, 201);
 });
 
-// article.get("/:slug", validateSlugParam, async (c) => {
-//   const { slug } = c.req.valid("param");
-//   const article = await articleService.getArticle(slug);
+article.get("/:slug", validateSlugParam, async (c) => {
+  const { slug } = c.req.valid("param");
+  const article = await articleService.getArticle(slug);
 
-//   return c.json(article);
-// });
+  return c.json(article);
+});
 
 // article.patch("/:slug", validateSlugParam, validateArticleInsertBody, async (c) => {
 //   const { slug } = c.req.valid("param");
@@ -45,4 +43,10 @@ article.post("/", validateArticleInsertBody, async (c) => {
 //   return c.json({ message: "Deleted", slug: deletedSlug });
 // });
 
-export default app;
+// for development
+article.delete("/delete-all", async (c) => {
+  await articleService.deleteAllArticles();
+  return c.json({ message: "Articles gone, reduced to atoms" }, 200);
+});
+
+export default article;

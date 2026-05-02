@@ -1,7 +1,7 @@
 import { SanitizedUserRegister, UserSession } from "@auth/auth.types";
 import { sessions, users } from "@auth/db/schema";
 import { randomUUIDv7 } from "bun";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { authDb } from ".";
 
 export default class AuthRepository {
@@ -30,13 +30,14 @@ export default class AuthRepository {
     return res;
   }
 
-  async findUserByUsername(username: string) {
-    const [res] = await authDb
-      .select({ username: users.username })
+  async findDisplayNamesByUserIds(userIds: string[]) {
+    return await authDb
+      .select({ 
+        userId: users.userId,
+        displayName: users.displayName,
+      })
       .from(users)
-      .where(eq(users.username, username.toLowerCase()));
-
-    return res;
+      .where(inArray(users.userId, userIds));
   }
   
   async createUser(data: SanitizedUserRegister) {
@@ -110,11 +111,11 @@ export default class AuthRepository {
   }
 
   // for development
-  // async findAllSessions() {
-  //   return await authDb.select().from(sessions);
-  // }
+  async findAllSessions() {
+    return await authDb.select().from(sessions);
+  }
 
-  // async deleteAllSessions() {
-  //   await authDb.delete(sessions);
-  // }
+  async deleteAllSessions() {
+    await authDb.delete(sessions);
+  }
 }

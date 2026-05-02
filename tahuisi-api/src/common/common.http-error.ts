@@ -25,12 +25,12 @@ export class ConflictError extends HTTPException {
 }
 
 export class UnprocessableContentError extends HTTPException {
-  constructor(message: string) {
-    super(422, { message });
+  constructor(message: string, cause?: string) {
+    super(422, { message, cause });
   }
 }
 
-export class ServerError extends HTTPException {
+export class InternalServerError extends HTTPException {
   constructor(message: string) {
     super(500, { message: message });
   }

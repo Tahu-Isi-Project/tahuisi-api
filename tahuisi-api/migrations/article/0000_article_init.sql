@@ -14,11 +14,14 @@ CREATE TABLE `articles` (
 	`body` text NOT NULL,
 	`status` text DEFAULT 'DRAFT' NOT NULL,
 	`thumbnail_id` text,
-	`created_at` integer DEFAULT (strftime('%s', 'now')) NOT NULL,
+	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
 	`published_at` integer,
 	`updated_at` integer,
 	`is_live` integer DEFAULT false NOT NULL,
-	CONSTRAINT "live_status_check" CHECK(NOT ("articles"."is_live" = 1 AND "articles"."status" != 'PUBLISHED'))
+	CONSTRAINT "check_live_status" CHECK("articles"."is_live" = 0 OR ("articles"."is_live" = 1 AND "articles"."status" = 'PUBLISHED')),
+	CONSTRAINT "check_publish_date" CHECK("articles"."published_at" IS NULL OR "articles"."created_at" <= "articles"."published_at"),
+	CONSTRAINT "check_update_created" CHECK("articles"."updated_at" IS NULL OR "articles"."updated_at" >= "articles"."created_at"),
+	CONSTRAINT "check_update_published" CHECK("articles"."updated_at" IS NULL OR "articles"."published_at" IS NULL OR "articles"."updated_at" >= "articles"."published_at")
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `articles_slug_unique` ON `articles` (`slug`);--> statement-breakpoint

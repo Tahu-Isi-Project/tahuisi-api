@@ -1,6 +1,6 @@
 import AuthRepository from "@auth/auth.repository";
 import { UserLogin, UserRegister } from "@auth/auth.types";
-import { ConflictError, UnauthorizedError } from "@common/common.error";
+import { ConflictError, UnauthorizedError, UnprocessableContentError } from "@common/common.http-error";
 import { randomUUIDv7 } from "bun";
 
 export default class AuthService {
@@ -60,10 +60,6 @@ export default class AuthService {
     return sessionId;
   }
 
-  async getSession(sessionId: string) {
-    return await this.repo.findSessionBySessionId(sessionId);
-  }
-
   async logoutUser(sessionId: string) {
     await this.repo.deleteSessionBySessionId(sessionId);
   }
@@ -72,12 +68,41 @@ export default class AuthService {
     await this.repo.deleteSessionsByUserId(userId);
   }
 
-  // for development
-  // async getSessions() {
-  //   return await this.repo.findAllSessions();
-  // }
+  /**
+   * Get a list of display names & userIds
+   * @param userIds
+   * @returns Array of { userId: string; displayName: string; }
+   * @throws HTTP 422 error if there are any duplicate userIds provided
+   */
+  async getDisplayNames(userIds: string[]) {
+    const seen = new Set<string>();
+    const duplicates = new Set<string>();
+    
+    for (const id of userIds) {
+      if (seen.has(id))
+        duplicates.add(id);
+      else 
+        seen.add(id);
+    }
 
-  // async deleteAllSessions() {
-  //   await this.repo.deleteAllSessions();
-  // }
+    if (duplicates.size > 0)
+      throw new UnprocessableContentError(
+        `Duplicate authorIds provided: ${Array.from(duplicates).join(", ")}`
+      );
+
+    return await this.repo.findDisplayNamesByUserIds(userIds);
+  }
+
+  async getSession(sessionId: string) {
+    return await this.repo.findSessionBySessionId(sessionId);
+  }
+
+  // for development
+  async getSessions() {
+    return await this.repo.findAllSessions();
+  }
+
+  async deleteAllSessions() {
+    await this.repo.deleteAllSessions();
+  }
 }
