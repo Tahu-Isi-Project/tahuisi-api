@@ -4,6 +4,7 @@ import MediaService from "@media/media.service";
 import { MediaColumn } from "@media/media.types";
 import { Article, ArticleInsert, Headline } from "@article/article.types";
 import { authService } from "@common/common.singleton";
+import { UNIQUE_CONSTRAINT_ERROR } from "@common/common.constants";
 
 export default class ArticleService {
   private repo: ArticleRepository;
@@ -16,7 +17,7 @@ export default class ArticleService {
 
   private async getMediaList(mediaIds: string[]) {
     const mediaQuery = ["altText", "r2Key"] as MediaColumn[];
-    return await this.mediaService.queryByIds(mediaQuery, mediaIds);
+    return await this.mediaService.getFiles(mediaQuery, mediaIds);
   }
 
   async getHeadlines(limit: number): Promise<Headline[]> {
@@ -59,7 +60,7 @@ export default class ArticleService {
     try {
       await this.repo.createArticle(article);
     } catch (err: any) {
-      if (err.code === "SQLITE_CONSTRAINT_UNIQUE" && err.message.includes("articles.slug"))
+      if (err.code === UNIQUE_CONSTRAINT_ERROR && err.message.includes("articles.slug"))
         throw new ConflictError(`Slug '${article.article.slug}' already exists.`);
 
       throw err;

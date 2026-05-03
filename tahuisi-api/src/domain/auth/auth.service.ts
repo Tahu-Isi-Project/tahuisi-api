@@ -1,6 +1,7 @@
 import AuthRepository from "@auth/auth.repository";
 import { UserLogin, UserRegister } from "@auth/auth.types";
-import { ConflictError, UnauthorizedError, UnprocessableContentError } from "@common/common.http-error";
+import { UNIQUE_CONSTRAINT_ERROR } from "@common/common.constants";
+import { BadRequestError, ConflictError, UnauthorizedError } from "@common/common.http-error";
 import { randomUUIDv7 } from "bun";
 
 export default class AuthService {
@@ -31,7 +32,7 @@ export default class AuthService {
     try {
       return await this.repo.createUser(sanitizedRegisterData);
     } catch (err: any) {
-      if (err.code === "SQLITE_CONSTRAINT_UNIQUE") {
+      if (err.code === UNIQUE_CONSTRAINT_ERROR) {
         const msg = err.message as string;
         if (msg.includes("users.username") || msg.includes("users.real_username") || msg.includes("users.email"))
           throw new ConflictError("Username/email already registered.");
@@ -72,7 +73,7 @@ export default class AuthService {
    * Get a list of display names & userIds
    * @param userIds
    * @returns Array of { userId: string; displayName: string; }
-   * @throws HTTP 422 error if there are any duplicate userIds provided
+   * @throws HTTP 400 error if there are any duplicate userIds provided
    */
   async getDisplayNames(userIds: string[]) {
     const seen = new Set<string>();
@@ -86,7 +87,7 @@ export default class AuthService {
     }
 
     if (duplicates.size > 0)
-      throw new UnprocessableContentError(
+      throw new BadRequestError(
         `Duplicate authorIds provided: ${Array.from(duplicates).join(", ")}`
       );
 
