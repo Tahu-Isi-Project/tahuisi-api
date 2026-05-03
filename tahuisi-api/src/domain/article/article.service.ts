@@ -16,7 +16,7 @@ export default class ArticleService {
   }
 
   private async getMediaList(mediaIds: string[]) {
-    const mediaQuery = ["altText", "r2Key"] as MediaColumn[];
+    const mediaQuery = ["altText", "key"] as MediaColumn[];
     return await this.mediaService.getFiles(mediaQuery, mediaIds);
   }
 
@@ -40,8 +40,8 @@ export default class ArticleService {
         slug: base.slug,
         title: base.title,
         excerpt: base.excerpt,
-        thumbnailSrc: media ? media.r2Key : null,
-        thumbnailAlt: media ? media.altText : null,
+        thumbnailSrc: media ? media.key : null,
+        thumbnailAlt: media ? media.key : null,
       };
     });
   }
@@ -90,7 +90,7 @@ export default class ArticleService {
         body: articleBase.body,
         publishedAt: articleBase.publishedAt,
         updatedAt: articleBase.updatedAt,
-        thumbnailSrc: mediaList[0] ? mediaList[0].r2Key : null,
+        thumbnailSrc: mediaList[0] ? mediaList[0].key : null,
         thumbnailAlt: mediaList[0] ? mediaList[0].altText : null
       },
       authorNames

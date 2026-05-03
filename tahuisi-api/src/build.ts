@@ -31,6 +31,7 @@ await Bun.build({
   outdir: "./dist",
   target: "bun",
   minify: true,
+  external: ["sharp"],
 });
 
 console.log("Build complete!");

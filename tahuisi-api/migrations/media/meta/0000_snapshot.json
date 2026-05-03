@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "1d39024e-c05b-441d-9161-eb77ab7b6673",
+  "id": "ccbc0685-ff88-4e5c-88a6-0f6a9f6d2346",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "media": {
@@ -35,8 +35,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "r2_key": {
-          "name": "r2_key",
+        "key": {
+          "name": "key",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -67,7 +67,7 @@
           "name": "file_hash",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "width": {
@@ -84,8 +84,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "blurhash": {
-          "name": "blurhash",
+        "thumbhash": {
+          "name": "thumbhash",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -130,10 +130,17 @@
         }
       },
       "indexes": {
-        "media_r2_key_unique": {
-          "name": "media_r2_key_unique",
+        "media_key_unique": {
+          "name": "media_key_unique",
           "columns": [
-            "r2_key"
+            "key"
+          ],
+          "isUnique": true
+        },
+        "media_file_hash_unique": {
+          "name": "media_file_hash_unique",
+          "columns": [
+            "file_hash"
           ],
           "isUnique": true
         },
@@ -152,13 +159,6 @@
             "height"
           ],
           "isUnique": false
-        },
-        "idx_file_hash": {
-          "name": "idx_file_hash",
-          "columns": [
-            "file_hash"
-          ],
-          "isUnique": true
         }
       },
       "foreignKeys": {},

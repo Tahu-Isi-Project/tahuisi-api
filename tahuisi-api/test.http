@@ -1,8 +1,7 @@
 @BASE_URL = http://localhost:3000/api/v1
-@INTERNAL_SECRET = verysecretinternalsecretandsafe
+@INTERNAL_SECRET = superinternalsecret
 
-@RYHUN_ID = 019de820-9665-7000-b03e-cc1235b4fcd4
-@RYHUN_2_ID = 019de820-b0f5-7000-b8ab-ba7895b4b1df
+@USER_ID = 019deedb-ccd3-7000-98f1-bf3ea222467f
 
 // Auth routes
 ###
@@ -37,7 +36,7 @@ POST {{BASE_URL}}/auth/login
 Content-Type: application/json
 
 {
-    "email": "ryhundua@emailbagus.com",
+    "email": "ryhun@emailkeren.com",
     "password": "verysecretpassword"
 }
 
@@ -54,6 +53,7 @@ GET {{BASE_URL}}/auth/sessions
 
 DELETE {{BASE_URL}}/auth/sessions
 
+###
 
 // Article routes
 ###
@@ -122,3 +122,38 @@ DELETE {{BASE_URL}}/article/delete-all
 x-internal-secret: {{INTERNAL_SECRET}}
 
 ###
+
+// Media routes
+###
+
+POST {{BASE_URL}}/media
+x-internal-secret: {{INTERNAL_SECRET}}
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="uploaderId"
+
+019deee0-e455-7000-9369-7d41d8667d37
+--boundary
+Content-Disposition: form-data; name="altText"
+
+Ini gambar kaguya dan mokou
+--boundary
+Content-Disposition: form-data; name="isPublic"
+
+true
+--boundary
+Content-Disposition: form-data; name="file"; filename="mokoukaguya.jpg"
+Content-Type: image/jpg
+
+< ./files/mokoukaguya.jpg
+--boundary--
+
+###
+GET {{BASE_URL}}/media/all-data
+x-internal-secret: {{INTERNAL_SECRET}}
+
+###
+
+DELETE {{BASE_URL}}/media
+x-internal-secret: {{INTERNAL_SECRET}}

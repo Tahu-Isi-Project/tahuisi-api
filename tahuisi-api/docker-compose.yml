@@ -10,4 +10,9 @@ services:
     environment:
       - COOKIE_SECRET=${COOKIE_SECRET}
       - INTERNAL_SECRET=${INTERNAL_SECRET}
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}
+      - S3_BUCKET=${S3_BUCKET}
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_REGION=${S3_REGION}
       - NODE_ENV=production
