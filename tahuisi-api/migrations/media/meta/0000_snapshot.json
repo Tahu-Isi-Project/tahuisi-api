@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "453374e8-9144-4ea8-9db1-7c2da861e219",
+  "id": "1d39024e-c05b-441d-9161-eb77ab7b6673",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "media": {
@@ -35,15 +35,15 @@
           "notNull": true,
           "autoincrement": false
         },
-        "alt_text": {
-          "name": "alt_text",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "r2_key": {
           "name": "r2_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "bucket_name": {
+          "name": "bucket_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -63,13 +63,48 @@
           "notNull": true,
           "autoincrement": false
         },
-        "metadata": {
-          "name": "metadata",
+        "file_hash": {
+          "name": "file_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "width": {
+          "name": "width",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "height": {
+          "name": "height",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "blurhash": {
+          "name": "blurhash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "extra_metadata": {
+          "name": "extra_metadata",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
           "default": "'{}'"
+        },
+        "alt_text": {
+          "name": "alt_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "is_public": {
           "name": "is_public",
@@ -81,6 +116,13 @@
         },
         "uploaded_at": {
           "name": "uploaded_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
@@ -102,18 +144,32 @@
           ],
           "isUnique": false
         },
-        "idx_media_type": {
-          "name": "idx_media_type",
+        "idx_media_type_dims": {
+          "name": "idx_media_type_dims",
           "columns": [
-            "media_type"
+            "media_type",
+            "width",
+            "height"
           ],
           "isUnique": false
+        },
+        "idx_file_hash": {
+          "name": "idx_file_hash",
+          "columns": [
+            "file_hash"
+          ],
+          "isUnique": true
         }
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "checkConstraints": {
+        "check_update_date": {
+          "name": "check_update_date",
+          "value": "\"media\".\"updated_at\" >= \"media\".\"uploaded_at\""
+        }
+      }
     }
   },
   "views": {},

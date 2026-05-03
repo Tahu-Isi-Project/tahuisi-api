@@ -3,10 +3,10 @@ import { z } from "zod";
 import { articleAuthors, articles } from "@article/db/schema";
 
 export const articleStatusEnum = z.enum([
-  "DRAFT",
-  "PENDING_REVIEW",
-  "PUBLISHED",
-  "ARCHIVED",
+  "draft",
+  "pending_review",
+  "published",
+  "archived",
 ]);
 
 export const articleSlugSchema = z
@@ -25,7 +25,7 @@ export const articleEntitySchema = createInsertSchema(articles, {
   title: z.string().min(1).max(100),
   excerpt: z.string().min(1).max(200),
   body: z.string(),
-  status: articleStatusEnum.default("DRAFT"),
+  status: articleStatusEnum.default("draft"),
   thumbnailId: z.uuidv7().nullable(),
   publishedAt: z.coerce.date().nullable(),
   updatedAt: z.coerce.date().nullable(),

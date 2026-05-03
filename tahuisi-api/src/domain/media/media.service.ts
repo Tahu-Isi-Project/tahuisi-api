@@ -9,7 +9,7 @@ export default class MediaService {
     this.repo = mediaRepository;
   }
 
-  async queryByIds(columns: MediaColumn[], ids: string[]) {
-    return await this.repo.queryByIds(columns, ids);
+  async getFiles(columns: MediaColumn[], ids: string[]) {
+    return await this.repo.findFilesByIds(columns, ids);
   }
 }

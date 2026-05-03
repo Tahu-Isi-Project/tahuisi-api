@@ -4,6 +4,7 @@ const ArticleSlug = z
   .string()
   .min(2)
   .max(100)
+  .toLowerCase()
   .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
     message:
       "Must start and end with a letter or a number, only lowercase, and only '-' symbol.",
@@ -11,19 +12,22 @@ const ArticleSlug = z
   .describe("Slug for the article URL");
 
 const articleStatusEnum = z.enum([
-  "DRAFT",
-  "PENDING_REVIEW",
-  "PUBLISHED",
-  "ARCHIVED",
+  "draft",
+  "pending_review",
+  "published",
+  "archived",
 ]);
 
 export const articleInsertDto = z.object({
   article: z.object({
-    slug: ArticleSlug,
+    slug: ArticleSlug
+      .refine((slug) => slug !== "headline" && slug !== "headlines", {
+        error: "Provided slug will conflict with an endpoint with same name."
+      }),
     title: z.string().min(1).max(100),
     excerpt: z.string().min(1).max(200),
     body: z.string(),
-    status: articleStatusEnum.default("DRAFT"),
+    status: articleStatusEnum.default("draft"),
     thumbnailId: z.uuidv7().nullable(),
     publishedAt: z.date().optional(),
     isLive: z.boolean().default(false),

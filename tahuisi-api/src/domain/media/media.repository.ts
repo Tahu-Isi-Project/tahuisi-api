@@ -6,7 +6,7 @@ import { mediaDb } from "@media/index";
 export default class MediaRepository {
   private mediaColumns = getTableColumns(media);
 
-  async queryByIds(columns: MediaColumn[], ids: string[]) {
+  async findFilesByIds(columns: MediaColumn[], ids: string[]) {
     const selectedColumns = Object.fromEntries(
       ["id", ...columns].map(
         (col) => [col, this.mediaColumns[col as MediaColumn]]

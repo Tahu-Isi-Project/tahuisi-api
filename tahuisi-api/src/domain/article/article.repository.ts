@@ -15,7 +15,7 @@ export default class ArticleRepository {
       })
       .from(articles)
       .where(and(
-        eq(articles.status, "PUBLISHED"), 
+        eq(articles.status, "published"), 
         eq(articles.isLive, true)
       ))
       .orderBy(desc(articles.publishedAt))
@@ -81,7 +81,7 @@ export default class ArticleRepository {
       .update(articles)
       .set({
         isLive: false,
-        status: "ARCHIVED",
+        status: "archived",
       })
       .where(eq(articles.slug, slug));
   }

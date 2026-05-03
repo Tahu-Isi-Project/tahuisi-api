@@ -18,9 +18,9 @@ export const articles = sqliteTable("articles", {
   title: text("title").notNull(),
   excerpt: text("excerpt").notNull(),
   body: text("body").notNull(),
-  status: text("status", { enum: ["DRAFT", "PENDING_REVIEW", "PUBLISHED", "ARCHIVED"] })
+  status: text("status", { enum: ["draft", "pending_review", "published", "archived"] })
     .notNull()
-    .default("DRAFT"),
+    .default("draft"),
   thumbnailId: text("thumbnail_id"), 
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
@@ -31,7 +31,7 @@ export const articles = sqliteTable("articles", {
 }, (t) => [
   index("status_date_idx").on(t.status, t.publishedAt),
   check("check_live_status", 
-    sql`${t.isLive} = 0 OR (${t.isLive} = 1 AND ${t.status} = 'PUBLISHED')`
+    sql`${t.isLive} = 0 OR (${t.isLive} = 1 AND ${t.status} = 'published')`
   ),
   check("check_publish_date", 
     sql`${t.publishedAt} IS NULL OR ${t.createdAt} <= ${t.publishedAt}`
