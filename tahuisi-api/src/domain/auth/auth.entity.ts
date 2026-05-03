@@ -1,24 +1,37 @@
 import { createInsertSchema } from "drizzle-zod";
 import { sessions, users } from "@auth/db/schema";
 import z from "zod";
+import { NO_SPACE_REGEX } from "@common/common.regex";
 
 export const userEntitySchema = createInsertSchema(users, {
   userId: z.uuidv7(),
   email: z.email().toLowerCase(),
+  passwordHash: z.string(),
+
   username: z.string()
     .toLowerCase()
-    .min(3)
+    .regex(NO_SPACE_REGEX)
+    .min(2)
     .max(16),
-  realUsername: z.string(),
-  passwordHash: z.string(),
-  role: z.enum(["user", "admin"]),
-  displayName: z.string(),
+  realUsername: z.string()
+    .regex(NO_SPACE_REGEX, "Username cannot contain spaces")
+    .min(2, "Username must be 2 characters minimum")
+    .max(16, "Username cannot exceed 16 characters"),
+  displayName: z.string().min(1).max(64),
+  
+  role: z.enum(["user", "admin"]).default("user"),
   gender: z.enum(["male", "female", "other"]),
+
   avatarId: z.uuidv7().nullable(),
   registerDate: z.date(),
   lastLogin: z.date(),
+
   userStatus: z.enum(["active", "inactive", "banned"]),
+
   bio: z.string().nullable()
+}).refine((data) => data.registerDate >= data.lastLogin, {
+  message: "lastLogin cannot be earlier than registerDate",
+  path: ["lastLogin"],
 });
 
 export const userSessionEntitySchema = createInsertSchema(sessions, {

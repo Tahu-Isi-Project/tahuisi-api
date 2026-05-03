@@ -9,8 +9,8 @@ export const articleStatusEnum = z.enum([
   "archived",
 ]);
 
-export const articleSlugSchema = z
-  .string()
+export const articleSlugSchema = z.string()
+  .toLowerCase()
   .min(2)
   .max(100)
   .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, {
@@ -24,7 +24,7 @@ export const articleEntitySchema = createInsertSchema(articles, {
   slug: articleSlugSchema,
   title: z.string().min(1).max(100),
   excerpt: z.string().min(1).max(200),
-  body: z.string(),
+  body: z.string().min(1),
   status: articleStatusEnum.default("draft"),
   thumbnailId: z.uuidv7().nullable(),
   publishedAt: z.coerce.date().nullable(),
