@@ -29,9 +29,6 @@ export const userEntitySchema = createInsertSchema(users, {
   userStatus: z.enum(["active", "inactive", "banned"]),
 
   bio: z.string().nullable()
-}).refine((data) => data.registerDate >= data.lastLogin, {
-  message: "lastLogin cannot be earlier than registerDate",
-  path: ["lastLogin"],
 });
 
 export const userSessionEntitySchema = createInsertSchema(sessions, {
