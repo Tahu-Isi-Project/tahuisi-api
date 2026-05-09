@@ -19,6 +19,16 @@ export default class AuthService {
   }
 
   async registerUser(registerData: UserRegister) {
+    const [existingEmail, existingUsername] = await Promise.all([
+      await this.repo.findUserByEmail(registerData.email),
+      await this.repo.findUserByUsername(registerData.username)
+    ]);
+
+    if (existingEmail) 
+      throw new ConflictError("Email already registered");
+    if (existingUsername) 
+      throw new ConflictError("Username already registered");
+    
     const passwordHash = await Bun.password.hash(registerData.password, "argon2id");
 
     const sanitizedRegisterData = {
