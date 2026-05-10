@@ -8,7 +8,7 @@ export const headlineSelectDto = articleEntitySchema
     excerpt: true,
   })
   .extend({
-    thumbnailSrc: z.nullable(z.url()),
+    rawThumbnailSrc: z.nullable(z.url()),
     thumbnailAlt: z.nullable(z.string()),
   });
 
@@ -23,7 +23,7 @@ export const articleSelectDto = z.object({
       title: true,
     })
     .extend({
-      thumbnailSrc: z.nullable(z.url()),
+      rawThumbnailSrc: z.nullable(z.url()),
       thumbnailAlt: z.nullable(z.string()),
     }),
   authorNames: z.array(z.string().min(1)).min(1),

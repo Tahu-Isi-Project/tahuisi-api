@@ -1,6 +1,7 @@
 CREATE TABLE `media` (
 	`id` text PRIMARY KEY NOT NULL,
 	`uploader_id` text NOT NULL,
+	`status` text NOT NULL,
 	`media_type` text NOT NULL,
 	`mime_type` text NOT NULL,
 	`key` text NOT NULL,
@@ -11,9 +12,9 @@ CREATE TABLE `media` (
 	`width` integer,
 	`height` integer,
 	`thumbhash` text,
-	`extra_metadata` text DEFAULT '{}',
+	`extra_metadata` text,
 	`alt_text` text,
-	`is_public` integer DEFAULT true,
+	`is_public` integer NOT NULL,
 	`uploaded_at` integer,
 	`updated_at` integer,
 	CONSTRAINT "check_update_date" CHECK("media"."updated_at" >= "media"."uploaded_at")
@@ -22,4 +23,5 @@ CREATE TABLE `media` (
 CREATE UNIQUE INDEX `media_key_unique` ON `media` (`key`);--> statement-breakpoint
 CREATE UNIQUE INDEX `media_file_hash_unique` ON `media` (`file_hash`);--> statement-breakpoint
 CREATE INDEX `idx_media_uploader` ON `media` (`uploader_id`);--> statement-breakpoint
-CREATE INDEX `idx_media_type_dims` ON `media` (`media_type`,`width`,`height`);
+CREATE INDEX `idx_media_type_dims` ON `media` (`media_type`,`width`,`height`);--> statement-breakpoint
+CREATE INDEX `idx_media_status` ON `media` (`status`);

@@ -18,13 +18,13 @@ Content-Type: application/json
         "title": "Ini Adalah Judul pertama",
         "excerpt": "Sebuah artikel pertama",
         "status": "published",
-        "thumbnailId": "019e0d0b-fc80-7000-9bfd-b2f9d946b180",
+        "thumbnailId": "019e1036-63a5-7000-b6fa-e3e1f47a9f02",
         "isLive": true,
         "body": "ini isi artikel yang nantinya akan sangat panjang sekali gak tau apalah itu"
     },
     "authorIds": 
     [
-        "019e0d0b-6a9b-7000-846d-2cf0071f241c"
+        "019e1035-d697-7000-ae34-62920d728ae6"
     ]
 }
 
@@ -40,13 +40,13 @@ Content-Type: application/json
         "title": "Artikel",
         "excerpt": "Sebuah artikel pertama",
         "status": "published",
-        "thumbnailId": "019e0d0b-fc80-7000-9bfd-b2f9d946b180",
+        "thumbnailId": "019e100a-008b-7000-bd70-b593db177341",
         "isLive": true,
         "body": "ini isi artikel yang nantinya akan sangat panjang sekali gak tau apalah itu"
     },
     "authorIds": 
     [
-        "019e0ce6-3ae4-7000-8355-37a0c0549e02"
+        "019e1008-8748-7000-b280-44e4f2317699"
     ]
 }
 

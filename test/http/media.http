@@ -1,11 +1,12 @@
 @BASE_MEDIA_URL = http://localhost:3000/api/v1/media
 @INTERNAL_SECRET = superinternalsecret
+@COOKIE = session_id=019e1035-fd8b-7000-afce-c8f40e2fd46c.nupgPIEkUpuP9UsRjV0eGzlKcX3WaYS9z3fcXK8iIFQ%3D;
 
 ###
 
 PUT {{BASE_MEDIA_URL}}
 x-internal-secret: {{INTERNAL_SECRET}}
-Cookie: session_id=019e0d50-6e7f-7000-8a25-ccefdc6fc80b.WSU2FcripewG%2BZzS1Ce0rmQi8jb1mELiJSfDcNU%2FjOY%3D;
+Cookie: {{COOKIE}}
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
@@ -20,14 +21,14 @@ true
 Content-Disposition: form-data; name="file"; filename="marisa.jpg"
 Content-Type: image/jpg
 
-< ./files/marisa.jpg
+< ../../files/marisa.jpg
 --boundary--
 
 ###
 
 PUT {{BASE_MEDIA_URL}}
 x-internal-secret: {{INTERNAL_SECRET}}
-Cookie: session_id=019e0d50-6e7f-7000-8a25-ccefdc6fc80b.WSU2FcripewG%2BZzS1Ce0rmQi8jb1mELiJSfDcNU%2FjOY%3D;
+Cookie: {{COOKIE}}
 Content-Type: multipart/form-data; boundary=boundary
 
 --boundary
@@ -39,10 +40,10 @@ Content-Disposition: form-data; name="isPublic"
 
 true
 --boundary
-Content-Disposition: form-data; name="file"; filename="marisa.jpg"
+Content-Disposition: form-data; name="file"; filename="mokoukaguya.jpg"
 Content-Type: image/jpg
 
-< ./files/mokoukaguya.jpg
+< ../../files/mokoukaguya.jpg
 --boundary--
 
 ###

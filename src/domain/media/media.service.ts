@@ -1,14 +1,12 @@
-import sharp from "sharp";
-import { ConflictError, InternalServerError, UnprocessableContentError } from "@common/common.http-error";
+import { InternalServerError, UnprocessableContentError } from "@common/common.http-error";
 import MediaRepository from "@media/media.repository";
-import { MediaColumn, MediaForm } from "@media/media.types";
-import { UNIQUE_CONSTRAINT_ERROR } from "@common/common.constants";
+import { MediaColumn, MediaForm, MediaInsert } from "@media/media.types";
 import MediaUtils from "@media/media.utils";
-import { mediaEntitySchema } from "@media/media.entity";
+import sharp from "sharp";
 
 export default class MediaService {
   private repo: MediaRepository;
-  private bucketName: string
+  private bucketName: string;
 
   constructor(mediaRepository: MediaRepository) {
     const bucketName = Bun.env.S3_BUCKET;
@@ -19,66 +17,66 @@ export default class MediaService {
     this.repo = mediaRepository;
   }
 
-  async saveFile(media: MediaForm): Promise<void> {
-    const uploaderExists = await MediaUtils.checkUploader(media.uploaderId);
-    if (!uploaderExists)
-      throw new UnprocessableContentError("Uploader does not exist.");
-
-    const [mediaType] = media.file.type.split("/", 1);
-
-    if (mediaType !== "image")
-      throw new UnprocessableContentError("Only images are allowed (for now).");
+  async saveFile(media: MediaForm, uploaderId: string) {
+    if (!media.file.type.startsWith("image/"))
+      throw new UnprocessableContentError("Only images are allowed.");
 
     const arrayBuffer = await media.file.arrayBuffer();
-    const mimeType = media.file.type;
-    const ext = MediaUtils.getExtension(mimeType);
-
+    const buffer = Buffer.from(arrayBuffer);
     const fileHash = MediaUtils.hash(arrayBuffer);
+    const ext = media.file.type.split("/")[1] ?? "bin";
     const key = `${fileHash}.${ext}`;
 
+    const sharpInstance = sharp(buffer);
     const [sharpMeta, thumbhash] = await Promise.all([
-      sharp(arrayBuffer).metadata(),
-      MediaUtils.generateThumbhash(arrayBuffer),
+      sharpInstance.metadata(),
+      MediaUtils.generateThumbhash(sharpInstance),
     ]);
 
-    const mediaData = mediaEntitySchema.parse({
-      uploaderId: media.uploaderId,
-      mediaType,
-      mimeType,
-      bucketName: this.bucketName,
+    const mediaData: MediaInsert = {
+      uploaderId,
+      status: "pending",
+      mediaType: "image",
+      mimeType: media.file.type,
       key,
-      fileName: `${fileHash}.${ext}`,
+      bucketName: this.bucketName,
+      fileName: media.file.name,
       fileSize: media.file.size,
       fileHash,
       width: sharpMeta.width,
       height: sharpMeta.height,
       thumbhash,
+      extraMetadata: media.extraMetadata,
       altText: media.altText ?? null,
       isPublic: true,
-    });
+    };
+    
+    const record = await this.repo.save(mediaData);
+    if (!record) throw new InternalServerError("Database reservation failed.");
+    
+    if (record.status === "ready") return record;
 
     try {
-      await this.repo.saveMediaData(mediaData);
-    } catch (err: any) {
-      if (err.code === UNIQUE_CONSTRAINT_ERROR && err.message.includes("media.file_hash"))
-        throw new ConflictError("Existing file hash already exists in database.");
-      
-      console.error("DB operation failed: ", err);
-      throw err;
+      await MediaUtils.uploadToS3(key, buffer, media.file.type);
+    } catch (err) {
+      console.error("S3 Upload Failed:", err);
+      await this.repo.deleteByKey(key).catch(console.error);
+      throw new InternalServerError("Storage upload failed. System rolled back.");
     }
 
     try {
-      await MediaUtils.uploadToS3(key, arrayBuffer, mimeType);
-    } catch (err: any) {
-      await this.repo.deleteMediaDataByKey(key);
-
-      console.error("S3 upload failed: ", err);
-      throw new InternalServerError("Internal error occurred during file upload.");
+      await this.repo.updateStatus(key, "ready");
+    } catch (err) {
+      console.error("File in S3 but DB update failed:", err);
+      await MediaUtils.deleteFromS3(key).catch(console.error);
+      throw new InternalServerError("Record update failed. Storage rolled back.");
     }
+
+    return record;
   }
 
-  async getFiles(queryColumns: MediaColumn[], ids: string[]) {
-    return await this.repo.findFilesByIds(queryColumns, ids);
+  async getFilesData(ids: string[], queryColumns: MediaColumn[]) {
+    return await this.repo.findByIdsFromQueries(ids, queryColumns);
   }
 
   async getAllMediaData() {
@@ -86,11 +84,24 @@ export default class MediaService {
   }
 
   async deleteFile(key: string) {
-    await this.repo.deleteMediaDataByKey(key);
+    await this.repo.deleteByKey(key);
     await MediaUtils.deleteFromS3(key);
   }
 
   async clearMediaTable() {
     await this.repo.deleteAll();
+  }
+
+  async purgeDanglingFiles() {
+    const danglingKeys = await this.repo.findDanglingKeys();
+
+    try {
+      const deletedItemsCount = await MediaUtils.deleteFromS3(danglingKeys);
+      await this.repo.deleteByKeys(danglingKeys);
+      return deletedItemsCount;
+    } catch (err) {
+      console.error("S3 Delete Failed:", err);
+      throw new InternalServerError("Internal storage cleanup error.");
+    }
   }
 }

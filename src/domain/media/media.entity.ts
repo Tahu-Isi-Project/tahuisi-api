@@ -1,8 +1,7 @@
 import { createInsertSchema } from "drizzle-zod";
 import z from "zod";
 import { NO_SPACE_REGEX } from "@common/common.regex";
-import { media } from "@media/db/schema";
-import { randomUUIDv7 } from "bun";
+import { media, mediaStatusEnum, mediaTypeEnum } from "@media/db/schema";
 
 export const extraMetadataSchema = z.object({
   duration: z.int().positive().optional(),
@@ -11,10 +10,11 @@ export const extraMetadataSchema = z.object({
 });
 
 export const mediaEntitySchema = createInsertSchema(media, {
-  id: z.uuidv7().default(() => randomUUIDv7()),
+  id: z.uuidv7(),
   uploaderId: z.uuidv7(),
+  status: z.enum(mediaStatusEnum),
 
-  mediaType: z.enum(["image", "audio", "video", "document"]),
+  mediaType: z.enum(mediaTypeEnum),
   mimeType: z.string().min(1),
 
   key: z.string().regex(NO_SPACE_REGEX),

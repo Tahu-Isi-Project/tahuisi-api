@@ -1,12 +1,13 @@
 import { media } from "@media/db/schema";
-import { eq, getTableColumns, inArray } from "drizzle-orm";
-import { MediaColumn, MediaEntity } from "@media/media.types";
+import { and, eq, getTableColumns, inArray, lt, ne } from "drizzle-orm";
+import { MediaColumn, MediaInsert } from "@media/media.types";
 import { mediaDb } from "@media/index";
+import { randomUUIDv7 } from "bun";
 
 export default class MediaRepository {
   private mediaColumns = getTableColumns(media);
 
-  async findFilesByIds(columns: MediaColumn[], ids: string[]) {
+  async findByIdsFromQueries(ids: string[], columns: MediaColumn[]) {
     const selectedColumns = Object.fromEntries(
       ["id", ...columns].map(
         (col) => [col, this.mediaColumns[col as MediaColumn]]
@@ -19,13 +20,39 @@ export default class MediaRepository {
       .where(inArray(media.id, ids));
   }
 
-  async saveMediaData(data: MediaEntity) {
-    await mediaDb
+  async save(data: MediaInsert) {
+    const date = new Date();
+
+    const [res] = await mediaDb
       .insert(media)
-      .values(data);
+      .values({
+        id: randomUUIDv7(),
+        uploadedAt: date,
+        updatedAt: date, 
+        ...data,
+      })
+      .onConflictDoUpdate({
+        target: [media.fileHash],
+        set: { 
+          updatedAt: date 
+        },
+      })
+      .returning({ 
+        id: media.id,
+        status: media.status 
+      });
+
+    return res;
   }
 
-  async deleteMediaDataByKey(key: string) {
+  async updateStatus(key: string, status: "ready" | "pending" | "deleting") {
+    await mediaDb
+      .update(media)
+      .set({ status })
+      .where(eq(media.key, key));
+  }
+
+  async deleteByKey(key: string) {
     await mediaDb
       .delete(media)
       .where(eq(media.key, key));
@@ -39,5 +66,25 @@ export default class MediaRepository {
 
   async deleteAll() {
     await mediaDb.delete(media);
+  }
+
+  async deleteByKeys(keys: string[]) {
+    await mediaDb
+      .delete(media)
+      .where(inArray(media.key, keys))
+  }
+
+  async findDanglingKeys() {
+    const oneHourAgo = new Date(Date.now() - 1 * 60 * 60 * 1000);
+
+    const items = await mediaDb
+      .select({ key: media.key })
+      .from(media)
+      .where(and(
+        ne(media.status, "ready"),
+        lt(media.uploadedAt, oneHourAgo)
+      ));
+    
+    return items.map((item) => item.key);
   }
 }
