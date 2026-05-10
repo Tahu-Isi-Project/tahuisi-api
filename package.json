@@ -4,7 +4,8 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "NODE_ENV=development bun --hot ./src/index.ts",
-    "build": "bun ./src/build.ts",
+    "migrate": "bun ./src/migrate.ts",
+    "build": "bun run migrate && bun ./src/build.ts",
     "start": "bun ./dist/index.js",
     "test": "bun test"
   },
