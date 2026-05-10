@@ -130,4 +130,8 @@ export default class AuthRepository {
   async deleteAllSessions() {
     await authDb.delete(sessions);
   }
+
+  async deleteAllUsers() {
+    await authDb.delete(users);
+  }
 }

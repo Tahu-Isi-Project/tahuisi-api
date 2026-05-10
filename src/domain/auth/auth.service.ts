@@ -116,4 +116,8 @@ export default class AuthService {
   async deleteAllSessions() {
     await this.repo.deleteAllSessions();
   }
+
+  async deleteAllUsers() {
+    await this.repo.deleteAllUsers();
+  }
 }
