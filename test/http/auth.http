@@ -1,0 +1,51 @@
+@BASE_AUTH_URL = http://localhost:3000/api/v1/auth
+@INTERNAL_SECRET = superinternalsecret
+
+###
+
+POST {{BASE_AUTH_URL}}/register
+Content-Type: application/json
+
+{
+    "email": "joko@email.com",
+    "password": "passwordkuat",
+    "username": "joko",
+    "gender": "male",
+    "displayName": "joko is there"
+}
+
+###
+
+POST {{BASE_AUTH_URL}}/register
+Content-Type: application/json
+
+{
+    "email": "ryhun@emailkeren.com",
+    "password": "passwordkuat",
+    "username": "ryhun",
+    "gender": "male",
+    "displayName": "ryhun was here"
+}
+
+###
+
+POST {{BASE_AUTH_URL}}/login
+Content-Type: application/json
+
+{
+    "email": "joko@email.com",
+    "password": "passwordkuat"
+}
+
+###
+
+POST {{BASE_AUTH_URL}}/logout
+Cookie: session_id=019e0cfb-d897-7000-a75d-a39b95a649c4.QiH0tbqoTRe2SV7buxVB7AaDymBp1jtqZCoF81bBUxg%3D;
+
+###
+
+GET {{BASE_AUTH_URL}}/sessions
+
+###
+
+DELETE {{BASE_AUTH_URL}}/sessions

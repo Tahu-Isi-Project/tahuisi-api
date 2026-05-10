@@ -1,0 +1,68 @@
+@BASE_ARTICLE_URL = http://localhost:3000/api/v1/article
+@INTERNAL_SECRET = superinternalsecret
+
+###
+
+GET {{BASE_ARTICLE_URL}}/headlines
+x-internal-secret: {{INTERNAL_SECRET}}
+
+###
+
+POST {{BASE_ARTICLE_URL}}
+x-internal-secret: {{INTERNAL_SECRET}}
+Content-Type: application/json
+
+{
+    "article": {
+        "slug": "artikel-1",
+        "title": "Ini Adalah Judul pertama",
+        "excerpt": "Sebuah artikel pertama",
+        "status": "published",
+        "thumbnailId": "019e0d0b-fc80-7000-9bfd-b2f9d946b180",
+        "isLive": true,
+        "body": "ini isi artikel yang nantinya akan sangat panjang sekali gak tau apalah itu"
+    },
+    "authorIds": 
+    [
+        "019e0d0b-6a9b-7000-846d-2cf0071f241c"
+    ]
+}
+
+###
+
+POST {{BASE_ARTICLE_URL}}
+x-internal-secret: {{INTERNAL_SECRET}}
+Content-Type: application/json
+
+{
+    "article": {
+        "slug": "kaguyamokou",
+        "title": "Artikel",
+        "excerpt": "Sebuah artikel pertama",
+        "status": "published",
+        "thumbnailId": "019e0d0b-fc80-7000-9bfd-b2f9d946b180",
+        "isLive": true,
+        "body": "ini isi artikel yang nantinya akan sangat panjang sekali gak tau apalah itu"
+    },
+    "authorIds": 
+    [
+        "019e0ce6-3ae4-7000-8355-37a0c0549e02"
+    ]
+}
+
+###
+
+GET {{BASE_ARTICLE_URL}}/artikel-1
+x-internal-secret: {{INTERNAL_SECRET}}
+
+###
+
+GET {{BASE_ARTICLE_URL}}/artikel-2
+x-internal-secret: {{INTERNAL_SECRET}}
+
+###
+
+DELETE {{BASE_ARTICLE_URL}}/delete-all
+x-internal-secret: {{INTERNAL_SECRET}}
+
+###
