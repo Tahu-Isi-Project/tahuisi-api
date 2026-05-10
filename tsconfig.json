@@ -26,7 +26,11 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "noUnusedLocals": true,
+    "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "verbatimModuleSyntax": false,
   },
   "exclude": ["./dist", "./node_modules", "./data", "./migrations"]
 }
