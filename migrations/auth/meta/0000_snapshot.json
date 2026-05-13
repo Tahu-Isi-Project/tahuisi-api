@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "68eccc6e-9bfd-4929-8b7f-d7b613962376",
+  "id": "f8a93456-ef01-4dae-92cd-72de35e93b4c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "sessions": {
@@ -162,6 +162,20 @@
           "autoincrement": false,
           "default": "'active'"
         },
+        "banned_date": {
+          "name": "banned_date",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "banned_reason": {
+          "name": "banned_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "bio": {
           "name": "bio",
           "type": "text",
@@ -200,6 +214,10 @@
         "last_login_check": {
           "name": "last_login_check",
           "value": "\"users\".\"last_login\" >= \"users\".\"register_date\""
+        },
+        "ban_consistency_check": {
+          "name": "ban_consistency_check",
+          "value": "(\"users\".\"user_status\" = 'banned' AND \"users\".\"banned_date\" IS NOT NULL) \n      OR \n      (\"users\".\"user_status\" <> 'banned' AND \"users\".\"banned_date\" IS NULL)"
         }
       }
     }

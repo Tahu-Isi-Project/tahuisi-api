@@ -21,8 +21,13 @@ CREATE TABLE `users` (
 	`register_date` integer NOT NULL,
 	`last_login` integer NOT NULL,
 	`user_status` text DEFAULT 'active' NOT NULL,
+	`banned_date` integer,
+	`banned_reason` text,
 	`bio` text,
-	CONSTRAINT "last_login_check" CHECK("users"."last_login" >= "users"."register_date")
+	CONSTRAINT "last_login_check" CHECK("users"."last_login" >= "users"."register_date"),
+	CONSTRAINT "ban_consistency_check" CHECK(("users"."user_status" = 'banned' AND "users"."banned_date" IS NOT NULL) 
+      OR 
+      ("users"."user_status" <> 'banned' AND "users"."banned_date" IS NULL))
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);--> statement-breakpoint

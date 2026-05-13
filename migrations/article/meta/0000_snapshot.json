@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "443aceac-b1bb-4f15-93db-6885a61ba8d7",
+  "id": "3714633f-4629-42c1-a989-29c6befc72b2",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "article_authors": {

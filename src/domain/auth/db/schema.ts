@@ -22,11 +22,18 @@ export const users = table("users", {
   userStatus: text("user_status", { enum: ["active", "inactive", "banned"] })
     .notNull()
     .default("active"),
+  bannedDate: integer("banned_date", { mode: "timestamp" }),
+  bannedReason: text("banned_reason"),
   bio: text("bio"),
 }, (t) => [
   check("last_login_check", 
     sql`${t.lastLogin} >= ${t.registerDate}`
-  )
+  ),
+  check("ban_consistency_check",
+    sql`(${t.userStatus} = 'banned' AND ${t.bannedDate} IS NOT NULL) 
+      OR 
+      (${t.userStatus} <> 'banned' AND ${t.bannedDate} IS NULL)`
+  ),
 ]);
 
 export const sessions = table("sessions", {
