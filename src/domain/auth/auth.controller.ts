@@ -19,7 +19,7 @@ auth.post("/register", validateUserRegisterBody, async (c) => {
   const registeredUser = await authService.registerUser(registerBody);
 
   if (!registeredUser)
-    throw new InternalServerError("Internal error occured during registration.");
+    throw new InternalServerError("Internal error occurred during registration.");
 
   return c.json({ message: "Registration successful", id: registeredUser.id }, 200);
 });
