@@ -2,7 +2,7 @@ import ArticleRepository from "@article/article.repository";
 import { ConflictError, NotFoundError, UnprocessableContentError } from "@common/common.http-error";
 import MediaService from "@media/media.service";
 import { MediaColumn } from "@media/media.types";
-import { ArticleInsert, Headline } from "@article/article.types";
+import { Article, ArticleInsert, Headline } from "@article/article.types";
 import { authService } from "@common/common.singleton";
 import { UNIQUE_CONSTRAINT_ERROR } from "@common/common.constants";
 import MediaUtils from "@media/media.utils";
@@ -10,14 +10,16 @@ import MediaUtils from "@media/media.utils";
 export default class ArticleService {
   private repo: ArticleRepository;
   private mediaService: MediaService;
+  private urlExpiry: number;
 
   constructor(articleRepository: ArticleRepository, mediaService: MediaService) {
     this.repo = articleRepository;
     this.mediaService = mediaService;
+    this.urlExpiry = Bun.env.S3_PRESIGN_EXPIRY ? Number(Bun.env.S3_PRESIGN_EXPIRY) : 60;
   }
 
   private async getMediaList(mediaIds: string[]) {
-    const mediaQuery = ["altText", "key"] as MediaColumn[];
+    const mediaQuery = ["altText", "key", "thumbhash"] as MediaColumn[];
     return await this.mediaService.getFilesData(mediaIds, mediaQuery);
   }
 
@@ -41,7 +43,7 @@ export default class ArticleService {
         slug: base.slug,
         title: base.title,
         excerpt: base.excerpt,
-        rawThumbnailSrc: media ? MediaUtils.getPresignedUrl(media.key) : null,
+        rawThumbnailSrc: media ? MediaUtils.getPresignedUrl(media.key, this.urlExpiry) : null,
         thumbnailAlt: media ? media.altText : null,
         thumbhash: media ? media.thumbhash : null
       };
@@ -69,35 +71,37 @@ export default class ArticleService {
     }
   }
 
-  // async getArticle(slug: string): Promise<Article> {
-  //   const articleBase = await this.repo.findArticleBase(slug);
+  async getArticle(slug: string): Promise<Article> {
+    const articleBase = await this.repo.findArticleBase(slug);
 
-  //   if (!articleBase) throw new NotFoundError("Article not found.");
+    if (!articleBase) throw new NotFoundError("Article not found.");
 
-  //   const mediaList = articleBase.thumbnailId 
-  //     ? await this.getMediaList([articleBase.thumbnailId]) 
-  //     : [];
+    const mediaList = articleBase.thumbnailId 
+      ? await this.getMediaList([articleBase.thumbnailId]) 
+      : [];
 
-  //   const authorsData = await this.repo.findAuthorIdsByArticleId(articleBase.articleId);
-  //   const authorIds = authorsData.map((data) => data.authorId);
+    const authorsData = await this.repo.findAuthorIdsByArticleId(articleBase.articleId);
+    const authorIds = authorsData.map((data) => data.authorId);
 
-  //   const authorNamesRaw = await authService.getDisplayNames(authorIds);
-  //   const authorNames = authorNamesRaw.map((data) => data.displayName);
+    const authorNamesRaw = await authService.getDisplayNames(authorIds);
+    const authorNames = authorNamesRaw.map((data) => data.displayName);
 
-  //   return {
-  //     article: {
-  //       slug: articleBase.slug,
-  //       title: articleBase.title,
-  //       excerpt: articleBase.excerpt,
-  //       body: articleBase.body,
-  //       publishedAt: articleBase.publishedAt,
-  //       updatedAt: articleBase.updatedAt,
-  //       thumbnailSrc: mediaList[0] ? mediaList[0].key : null,
-  //       thumbnailAlt: mediaList[0] ? mediaList[0].altText : null
-  //     },
-  //     authorNames
-  //   }
-  // }
+    const rawThumbnailSrc = mediaList[0] ? MediaUtils.getPresignedUrl(mediaList[0].key, this.urlExpiry) : null;
+    return {
+      article: {
+        slug: articleBase.slug,
+        title: articleBase.title,
+        excerpt: articleBase.excerpt,
+        body: articleBase.body,
+        publishedAt: articleBase.publishedAt,
+        updatedAt: articleBase.updatedAt,
+        rawThumbnailSrc,
+        thumbnailAlt: mediaList[0] ? mediaList[0].altText : null,
+        thumbhash: mediaList[0] ? mediaList[0].thumbhash : null
+      },
+      authorNames
+    }
+  }
   
   // for development
   async deleteAllArticles() {

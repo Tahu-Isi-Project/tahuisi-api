@@ -10,6 +10,7 @@ export const headlineSelectDto = articleEntitySchema
   .extend({
     rawThumbnailSrc: z.nullable(z.url()),
     thumbnailAlt: z.nullable(z.string()),
+    thumbhash: z.nullable(z.string()),
   });
 
 export const articleSelectDto = z.object({
@@ -25,6 +26,7 @@ export const articleSelectDto = z.object({
     .extend({
       rawThumbnailSrc: z.nullable(z.url()),
       thumbnailAlt: z.nullable(z.string()),
+      thumbhash: z.nullable(z.string()),
     }),
   authorNames: z.array(z.string().min(1)).min(1),
 });

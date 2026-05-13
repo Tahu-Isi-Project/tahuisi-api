@@ -45,7 +45,7 @@ export default class MediaUtils {
     return await s3Client.list();
   }
 
-  static getPresignedUrl(fileKey: string, expiry: number = 60) {
+  static getPresignedUrl(fileKey: string, expiry: number) {
     return s3Client.presign(fileKey, {
       expiresIn: expiry,
       method: "GET",
