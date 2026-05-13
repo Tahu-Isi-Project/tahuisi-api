@@ -18,19 +18,26 @@ const articleStatusEnum = z.enum([
   "archived",
 ]);
 
+const articleSchema = z.object({
+  slug: ArticleSlug
+    .refine((slug) => slug !== "headline" && slug !== "headlines", {
+      error: "Provided slug will conflict with an endpoint with same name."
+    }),
+  title: z.string().min(1).max(100),
+  excerpt: z.string().min(1).max(200),
+  body: z.string(),
+  status: articleStatusEnum.default("draft"),
+  thumbnailId: z.uuidv7().nullable(),
+  publishedAt: z.date().optional(),
+  isLive: z.boolean().default(false),
+});
+
 export const articleInsertDto = z.object({
-  article: z.object({
-    slug: ArticleSlug
-      .refine((slug) => slug !== "headline" && slug !== "headlines", {
-        error: "Provided slug will conflict with an endpoint with same name."
-      }),
-    title: z.string().min(1).max(100),
-    excerpt: z.string().min(1).max(200),
-    body: z.string(),
-    status: articleStatusEnum.default("draft"),
-    thumbnailId: z.uuidv7().nullable(),
-    publishedAt: z.date().optional(),
-    isLive: z.boolean().default(false),
-  }),
+  article: articleSchema,
   authorIds: z.array(z.uuidv7()),
+});
+
+export const articleUpdateDto = z.object({
+  article: articleSchema.partial().optional(),
+  authorIds: z.array(z.uuidv7()).optional(),
 });

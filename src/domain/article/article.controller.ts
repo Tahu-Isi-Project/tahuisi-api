@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { validateArticleInsertBody, validateLimitQuery, validateSlugParam } from "@article/article.validator";
+import { validateArticleInsertBody, validateArticleUpdateBody, validateLimitQuery, validateSlugParam } from "@article/article.validator";
 import { articleService } from "@common/common.singleton";
 import { internalAuthMiddleware } from "@middleware/middleware.internal-auth";
 
@@ -28,13 +28,13 @@ article.get("/:slug", validateSlugParam, async (c) => {
   return c.json(article);
 });
 
-// article.patch("/:slug", validateSlugParam, validateArticleInsertBody, async (c) => {
-//   const { slug } = c.req.valid("param");
-//   const articleUpdateBody = c.req.valid("json");
-//   const updatedArticle = await articleService.updateArticle(slug, articleUpdateBody);
+article.patch("/:slug", validateSlugParam, validateArticleUpdateBody, async (c) => {
+  const { slug } = c.req.valid("param");
+  const articleUpdateBody = c.req.valid("json");
+  const updatedArticle = await articleService.updateArticle(slug, articleUpdateBody);
 
-//   return c.json({ message: "Article updated", article: updatedArticle }, 201);
-// });
+  return c.json({ message: "Article updated", article: updatedArticle }, 201);
+});
 
 // article.delete("/:slug", validateSlugParam, async (c) => {
 //   const { slug } = c.req.valid("param");

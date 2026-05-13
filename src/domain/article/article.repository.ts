@@ -1,6 +1,6 @@
 import { and, desc, eq } from "drizzle-orm";
 import { articleAuthors, articles } from "@article/db/schema";
-import { ArticleInsert } from "@article/article.types";
+import { ArticleInsert, ArticleUpdate } from "@article/article.types";
 import { randomUUIDv7 } from "bun";
 import { articleDb } from "@article/index";
 
@@ -44,6 +44,52 @@ export default class ArticleRepository {
       }));
 
       await tx.insert(articleAuthors).values(authors);
+    });
+  }
+
+  async updateArticle(slug: string, updateData: ArticleUpdate) {
+    return await articleDb.transaction(async (tx) => {
+      const [article] = await tx
+        .select({ id: articles.articleId })
+        .from(articles)
+        .where(eq(articles.slug, slug));
+
+      if (!article) {
+        tx.rollback();
+        return null;
+      }
+
+      const articleId = article.id;
+      
+      if (updateData.article) {
+        await tx
+          .update(articles)
+          .set({
+            ...updateData.article,
+            updatedAt: new Date(),
+          })
+          .where(eq(articles.articleId, articleId));
+      }
+
+      if (updateData.authorIds && updateData.authorIds.length > 0) {
+        await tx
+          .delete(articleAuthors)
+          .where(eq(articleAuthors.articleId, articleId));
+        
+        const authorRows = updateData.authorIds.map((authorId) => ({
+          articleId, 
+          authorId,
+        }));
+
+        await tx.insert(articleAuthors).values(authorRows);
+      }
+      
+      const [updatedArticle] = await tx
+        .select()
+        .from(articles)
+        .where(eq(articles.articleId, articleId));
+      
+      return updatedArticle;
     });
   }
 

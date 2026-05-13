@@ -1,6 +1,6 @@
 import z from "zod";
 import { articleEntitySchema } from "@article/article.entity";
-import { articleInsertDto } from "@article/dto/article.dto.insert";
+import { articleInsertDto, articleUpdateDto } from "@article/dto/article.dto.insert";
 import { customValidator } from "@common/common.validator";
 
 export const validateSlugParam = customValidator("param",
@@ -19,3 +19,5 @@ export const validateLimitQuery = customValidator("query",
 );
 
 export const validateArticleInsertBody = customValidator("json", articleInsertDto);
+
+export const validateArticleUpdateBody = customValidator("json", articleUpdateDto);
