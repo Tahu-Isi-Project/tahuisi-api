@@ -7,7 +7,7 @@ const article = new Hono();
 
 article.use("*", internalAuthMiddleware);
 
-article.get("/headlines", validateLimitQuery, async (c) => {
+article.get("/", validateLimitQuery, async (c) => {
   const { limit } = c.req.valid("query");
   const headlines = await articleService.getHeadlines(limit);
 
