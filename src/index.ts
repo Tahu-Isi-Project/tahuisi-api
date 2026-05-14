@@ -6,10 +6,12 @@ import Article from "@article/article.controller";
 import Media from "@media/media.controller";
 import MediaUtils from "@media/media.utils";
 import { internalAuthMiddleware } from "@middleware/middleware.internal-auth";
-
-const app = new Hono();
+import { seedDatabases } from "./seed";
 
 await initDatabases();
+await seedDatabases();
+
+const app = new Hono();
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) {
