@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { validateArticleInsertBody, validateArticleUpdateBody, validateLimitQuery, validateSlugParam, validateStatusQuery } from "@article/article.validator";
 import { articleService } from "@common/common.singleton";
 import { internalAuthMiddleware } from "@middleware/middleware.internal-auth";
+import { UnauthorizedError } from "@common/common.http-error";
 
 const article = new Hono();
 
@@ -44,7 +45,9 @@ article.delete("/:slug", validateSlugParam, async (c) => {
 });
 
 // for development
-article.delete("/delete-all", async (c) => {
+article.delete("/", async (c) => {
+  if (Bun.env.NODE_ENV !== "development") throw new UnauthorizedError();
+
   await articleService.deleteAllArticles();
   return c.json({ message: "Articles gone, reduced to atoms" }, 200);
 });
