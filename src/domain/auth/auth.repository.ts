@@ -70,44 +70,46 @@ export default class AuthRepository {
   }
 
   async createSession(sessionData: UserSession) {
-    await authDb
-      .insert(sessions)
-      .values({
-        sessionId: sessionData.sessionId,
-        userId: sessionData.userId,
-        expiresAt: sessionData.expiresAt,
-        userAgent: sessionData.userAgent,
-        ipAddress: sessionData.ipAddress,
-      })
-      .onConflictDoUpdate({
-        target: [sessions.userId, sessions.userAgent, sessions.ipAddress],
-        set: {
+    await authDb.transaction(async (tx) => {
+      await tx
+        .insert(sessions)
+        .values({
           sessionId: sessionData.sessionId,
-          expiresAt: sessionData.expiresAt
-        }
-      });
+          userId: sessionData.userId,
+          expiresAt: sessionData.expiresAt,
+          userAgent: sessionData.userAgent,
+          ipAddress: sessionData.ipAddress,
+        })
+        .onConflictDoUpdate({
+          target: [sessions.userId, sessions.userAgent, sessions.ipAddress],
+          set: {
+            sessionId: sessionData.sessionId,
+            expiresAt: sessionData.expiresAt
+          }
+        });
+      
+      await tx
+        .update(users)
+        .set({ lastLogin: new Date() })
+        .where(eq(users.userId, sessionData.userId));
+    });
   }
 
-  async findSessionBySessionId(sessionId: string) {
-    const [session] = await authDb
-      .select()
-      .from(sessions)
-      .where(eq(sessions.sessionId, sessionId));
-
-    return session;
-  }
-
-  async findSessionByUserId(userId: string) {
-    return await authDb
+  async findSession(sessionId: string) {
+    const [result] = await authDb
       .select({
         sessionId: sessions.sessionId,
         userId: sessions.userId,
         expiresAt: sessions.expiresAt,
-        userAgent: sessions.userAgent,
-        ipAddress: sessions.ipAddress,
+        username: users.username,
+        role: users.role,
+        userStatus: users.userStatus,
       })
       .from(sessions)
-      .where(eq(sessions.userId, userId));
+      .innerJoin(users, eq(sessions.userId, users.userId))
+      .where(eq(sessions.sessionId, sessionId));
+
+    return result;
   }
 
   async deleteSessionBySessionId(sessionId: string) {

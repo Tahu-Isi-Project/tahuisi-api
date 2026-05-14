@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { text, sqliteTable as table, integer, check, unique } from "drizzle-orm/sqlite-core";
+import { text, sqliteTable as table, integer, check, unique, index } from "drizzle-orm/sqlite-core";
 
 export const users = table("users", {
   userId: text("user_id").primaryKey(),
@@ -26,9 +26,7 @@ export const users = table("users", {
   bannedReason: text("banned_reason"),
   bio: text("bio"),
 }, (t) => [
-  check("last_login_check", 
-    sql`${t.lastLogin} >= ${t.registerDate}`
-  ),
+  check("last_login_check", sql`${t.lastLogin} >= ${t.registerDate}`),
   check("ban_consistency_check",
     sql`(${t.userStatus} = 'banned' AND ${t.bannedDate} IS NOT NULL) 
       OR 
@@ -43,7 +41,9 @@ export const sessions = table("sessions", {
     .references(() => users.userId, { onDelete: "cascade" }),
   expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
   userAgent: text("user_agent").notNull(),
-  ipAddress: text("ip_address").notNull()
+  ipAddress: text("ip_address").notNull(),
 }, (t) => [
-  unique("unique_session_constraint").on(t.userId, t.userAgent, t.ipAddress)
+  index("sessions_user_id_idx").on(t.userId),
+  index("sessions_expires_at_idx").on(t.expiresAt),
+  unique("unique_session_constraint").on(t.userId, t.userAgent, t.ipAddress),
 ]);

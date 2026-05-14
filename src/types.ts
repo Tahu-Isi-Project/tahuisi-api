@@ -1,6 +1,10 @@
 export type AppEnv = {
   Variables: {
-    userId: string;
+    user: {
+      userId: string;
+      username: string;
+      role: "admin" | "user";
+    };
     sessionId: string;
   };
 };

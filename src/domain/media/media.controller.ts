@@ -9,7 +9,7 @@ const media = new Hono<AppEnv>();
 
 media.put("/", userAuthMiddleware, validateMediaUploadForm, async (c) => {
   const uploadForm = c.req.valid("form");
-  const uploaderId = c.get("userId");
+  const uploaderId = c.get("user").userId;
   const fileData = await mediaService.saveFile(uploadForm, uploaderId);
 
   return c.json({ message: "File uploaded", file: fileData }, 200);

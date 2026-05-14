@@ -104,8 +104,8 @@ export default class AuthService {
     return await this.repo.findDisplayNamesByUserIds(userIds);
   }
 
-  async getSession(sessionId: string) {
-    return await this.repo.findSessionBySessionId(sessionId);
+  async getUserAndSession(sessionId: string) {
+    return await this.repo.findSession(sessionId);
   }
 
   // for development

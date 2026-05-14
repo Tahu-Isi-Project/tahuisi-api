@@ -1,9 +1,6 @@
 import { Hono } from "hono";
 import { deleteCookie, setSignedCookie } from "hono/cookie";
-import {
-  validateUserLoginBody,
-  validateUserRegisterBody,
-} from "@auth/auth.validator";
+import { validateUserLoginBody, validateUserRegisterBody } from "@auth/auth.validator";
 import { UserLogin } from "@auth/auth.types";
 import { getConnInfo } from "hono/bun";
 import { userAuthMiddleware } from "@middleware/middleware.user-auth";
@@ -57,7 +54,7 @@ auth.post("/logout", userAuthMiddleware, async (c) => {
 });
 
 auth.post("/logout-all", userAuthMiddleware, async (c) => {
-  const userId = c.get("userId");
+  const userId = c.get("user").userId;
   await authService.logoutAllDevices(userId);
   deleteCookie(c, "session_id", { path: "/" });
   return c.json({ message: "Logged out from all devices" });
