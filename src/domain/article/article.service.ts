@@ -7,6 +7,7 @@ import { authService } from "@common/common.singleton";
 import { UNIQUE_CONSTRAINT_ERROR } from "@common/common.constants";
 import MediaUtils from "@media/media.utils";
 import { ArticleConflictError, ArticleNotFoundError } from "@article/article.error";
+import { purgeArticleCache } from "@article/article.utils";
 
 export default class ArticleService {
   private repo: ArticleRepository;
@@ -65,9 +66,10 @@ export default class ArticleService {
 
   async createArticle(article: ArticleInsert) {
     await this.checkAuthorsExistence(article.authorIds);
-
+    
     try {
       await this.repo.createArticle(article);
+      await purgeArticleCache(article.article.slug);
     } catch (err: any) {
       if (err.code === UNIQUE_CONSTRAINT_ERROR && err.message.includes("articles.slug"))
         throw new ArticleConflictError(article.article.slug);
@@ -84,7 +86,9 @@ export default class ArticleService {
       const updatedArticle = await this.repo.updateArticle(slug, articleUpdate);
       if (updatedArticle === null || !updatedArticle)
         throw new ArticleNotFoundError(slug);
-
+      
+      await purgeArticleCache(slug);
+      
       return updatedArticle;
 
     } catch (err: any) {
@@ -130,6 +134,9 @@ export default class ArticleService {
   async deleteArticle(slug: string) {
     const deletedArticle = await this.repo.softDeleteArticle(slug);
     if (!deletedArticle) throw new ArticleNotFoundError(slug);
+
+    await purgeArticleCache(slug);
+
     return deletedArticle;
   }
   

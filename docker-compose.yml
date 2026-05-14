@@ -15,4 +15,9 @@ services:
       - S3_BUCKET=${S3_BUCKET}
       - S3_API_ENDPOINT=${S3_API_ENDPOINT}
       - S3_REGION=${S3_REGION}
-      - NODE_ENV=development
+      - S3_RETRY_ATTEMPTS=${S3_RETRY_ATTEMPTS}
+      - S3_PRESIGN_EXPIRY=${S3_PRESIGN_EXPIRY}
+      - FRONTEND_HOST=${FRONTEND_HOST}
+      - CF_ZONE_ID=${CF_ZONE_ID}
+      - CF_API_TOKEN=${CF_API_TOKEN}
+      - NODE_ENV=production
