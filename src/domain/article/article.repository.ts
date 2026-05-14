@@ -142,36 +142,6 @@ export default class ArticleRepository {
     return deletedArticle;
   }
 
-  // async getAuthorIds(articleIds: string[]): Promise<Record<string, string[]>> {
-  //   const rows = await articleDb
-  //     .select({ articleId: articleAuthors.articleId, authorId: articleAuthors.authorId })
-  //     .from(articleAuthors)
-  //     .where(inArray(articleAuthors.articleId, articleIds));
-
-  //   return rows.reduce((acc, row) => {
-  //     if (!acc[row.articleId]) acc[row.articleId] = [];
-  //     acc[row.articleId].push(row.authorId);
-  //     return acc;
-  //   }, {} as Record<string, string[]>);
-  // }
-
-  // async updateArticle(slug: string, articleUpdateData: ArticleUpdate): Promise<ArticleUpdate[]> {
-  //   return await this.db
-  //     .update(articles)
-  //     .set(articleUpdateData)
-  //     .where(eq(articles.slug, slug))
-  //     .returning();
-  // }
-
-  // async permanentDeleteArticle(slug: string): Promise<string | null> {
-  //   const [deletedArticleSlug] = await this.db
-  //     .delete(articles)
-  //     .where(eq(articles.slug, slug))
-  //     .returning({ slug: articles.slug });
-
-  //   return deletedArticleSlug.slug ?? null;
-  // }
-
   // for development
   async deleteAllArticles() {
     await articleDb.delete(articles);
