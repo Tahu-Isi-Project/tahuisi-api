@@ -1,12 +1,12 @@
 import ArticleRepository from "@article/article.repository";
-import { ConflictError, NotFoundError, UnprocessableContentError } from "@common/common.http-error";
+import { NotFoundError, UnprocessableContentError } from "@common/common.http-error";
 import MediaService from "@media/media.service";
 import { MediaColumn } from "@media/media.types";
 import { Article, ArticleInsert, ArticleStatus, ArticleUpdate, Headline } from "@article/article.types";
 import { authService } from "@common/common.singleton";
 import { UNIQUE_CONSTRAINT_ERROR } from "@common/common.constants";
 import MediaUtils from "@media/media.utils";
-import { ArticleNotFoundError } from "@article/article.error";
+import { ArticleConflictError, ArticleNotFoundError } from "@article/article.error";
 
 export default class ArticleService {
   private repo: ArticleRepository;
@@ -70,7 +70,7 @@ export default class ArticleService {
       await this.repo.createArticle(article);
     } catch (err: any) {
       if (err.code === UNIQUE_CONSTRAINT_ERROR && err.message.includes("articles.slug"))
-        throw new ConflictError(`Slug '${article.article.slug}' already exists.`);
+        throw new ArticleConflictError(article.article.slug);
 
       throw err;
     }
@@ -89,7 +89,7 @@ export default class ArticleService {
 
     } catch (err: any) {
       if (err.code === UNIQUE_CONSTRAINT_ERROR && err.message.includes("articles.slug"))
-        throw new ConflictError(`Slug '${slug}' already exists.`);
+        throw new ArticleConflictError(slug);
 
       throw err;
     }
