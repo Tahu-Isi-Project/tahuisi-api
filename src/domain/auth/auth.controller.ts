@@ -10,7 +10,7 @@ import { userAuthMiddleware } from "@middleware/middleware.user-auth";
 import { authService } from "@common/common.singleton";
 import { AppEnv } from "@/types";
 import { COOKIE_SECRET } from "@common/common.constants";
-import { InternalServerError } from "@common/common.http-error";
+import { InternalServerError, UnauthorizedError } from "@common/common.http-error";
 
 const auth = new Hono<AppEnv>();
 
@@ -65,11 +65,15 @@ auth.post("/logout-all", userAuthMiddleware, async (c) => {
 
 // for development
 auth.get("/sessions", async (c) => {
+  if (Bun.env.NODE_ENV !== "development") throw new UnauthorizedError();
+
   const sessions = await authService.getSessions();
   return c.json({ sessions }, 200);
 });
 
 auth.delete("/sessions", async (c) => {
+  if (Bun.env.NODE_ENV !== "development") throw new UnauthorizedError();
+
   await authService.deleteAllSessions();
   return c.json({ message: "All sessions deleted." }, 200);
 });
