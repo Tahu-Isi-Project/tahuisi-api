@@ -6,6 +6,7 @@ import { Article, ArticleInsert, ArticleStatus, ArticleUpdate, Headline } from "
 import { authService } from "@common/common.singleton";
 import { UNIQUE_CONSTRAINT_ERROR } from "@common/common.constants";
 import MediaUtils from "@media/media.utils";
+import { ArticleNotFoundError } from "@article/article.error";
 
 export default class ArticleService {
   private repo: ArticleRepository;
@@ -82,7 +83,7 @@ export default class ArticleService {
     try {
       const updatedArticle = await this.repo.updateArticle(slug, articleUpdate);
       if (updatedArticle === null || !updatedArticle)
-        throw new NotFoundError(`Article with slug '${slug}' does not exist.`);
+        throw new ArticleNotFoundError(slug);
 
       return updatedArticle;
 
@@ -97,7 +98,7 @@ export default class ArticleService {
   async getArticle(slug: string): Promise<Article> {
     const articleBase = await this.repo.findArticleBase(slug);
 
-    if (!articleBase) throw new NotFoundError("Article not found.");
+    if (!articleBase) throw new ArticleNotFoundError(slug);
 
     const mediaList = articleBase.thumbnailId 
       ? await this.getMediaList([articleBase.thumbnailId]) 
@@ -128,7 +129,7 @@ export default class ArticleService {
 
   async deleteArticle(slug: string) {
     const deletedArticle = await this.repo.softDeleteArticle(slug);
-    if (!deletedArticle) throw new NotFoundError(`Article with slug '${slug}' does not exist.`);
+    if (!deletedArticle) throw new ArticleNotFoundError(slug);
     return deletedArticle;
   }
   
