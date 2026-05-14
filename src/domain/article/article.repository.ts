@@ -1,11 +1,13 @@
 import { and, desc, eq } from "drizzle-orm";
 import { articleAuthors, articles } from "@article/db/schema";
-import { ArticleInsert, ArticleUpdate } from "@article/article.types";
+import { ArticleInsert, ArticleStatus, ArticleUpdate } from "@article/article.types";
 import { randomUUIDv7 } from "bun";
 import { articleDb } from "@article/index";
 
 export default class ArticleRepository {
-  async findLatestHeadlinesBase(limit: number) {
+  async findLatestHeadlinesBase(limit: number, status: ArticleStatus) {
+    const isLive = status === "published";
+    
     return await articleDb
       .select({
         slug: articles.slug,
@@ -15,8 +17,8 @@ export default class ArticleRepository {
       })
       .from(articles)
       .where(and(
-        eq(articles.status, "published"), 
-        eq(articles.isLive, true)
+        eq(articles.status, status), 
+        eq(articles.isLive, isLive)
       ))
       .orderBy(desc(articles.publishedAt))
       .limit(limit);
@@ -123,16 +125,22 @@ export default class ArticleRepository {
   }
 
   async softDeleteArticle(slug: string) {
-    await articleDb
+    const [deletedArticle] = await articleDb
       .update(articles)
       .set({
         isLive: false,
         status: "archived",
       })
-      .where(eq(articles.slug, slug));
+      .where(eq(articles.slug, slug))
+      .returning({ 
+        articleId: articles.articleId,
+        slug: articles.slug,
+        isLive: articles.isLive,
+        status: articles.status,
+      });
+    
+    return deletedArticle;
   }
-
-
 
   // async getAuthorIds(articleIds: string[]): Promise<Record<string, string[]>> {
   //   const rows = await articleDb

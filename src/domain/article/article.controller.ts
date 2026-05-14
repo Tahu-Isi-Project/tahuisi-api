@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { validateArticleInsertBody, validateArticleUpdateBody, validateLimitQuery, validateSlugParam } from "@article/article.validator";
+import { validateArticleInsertBody, validateArticleUpdateBody, validateLimitQuery, validateSlugParam, validateStatusQuery } from "@article/article.validator";
 import { articleService } from "@common/common.singleton";
 import { internalAuthMiddleware } from "@middleware/middleware.internal-auth";
 
@@ -7,9 +7,9 @@ const article = new Hono();
 
 article.use("*", internalAuthMiddleware);
 
-article.get("/", validateLimitQuery, async (c) => {
-  const { limit } = c.req.valid("query");
-  const headlines = await articleService.getHeadlines(limit);
+article.get("/", validateLimitQuery, validateStatusQuery, async (c) => {
+  const { limit, status } = c.req.valid("query");
+  const headlines = await articleService.getHeadlines(limit, status);
 
   return c.json(headlines);
 });
@@ -36,12 +36,12 @@ article.patch("/:slug", validateSlugParam, validateArticleUpdateBody, async (c) 
   return c.json({ message: "Article updated", article: updatedArticle }, 201);
 });
 
-// article.delete("/:slug", validateSlugParam, async (c) => {
-//   const { slug } = c.req.valid("param");
-//   const deletedSlug = await articleService.deleteArticle(slug);
+article.delete("/:slug", validateSlugParam, async (c) => {
+  const { slug } = c.req.valid("param");
+  const deletedArticle = await articleService.deleteArticle(slug);
 
-//   return c.json({ message: "Deleted", slug: deletedSlug });
-// });
+  return c.json({ message: "Article deleted", deletedArticle }, 200);
+});
 
 // for development
 article.delete("/delete-all", async (c) => {

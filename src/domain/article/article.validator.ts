@@ -1,5 +1,5 @@
 import z from "zod";
-import { articleEntitySchema } from "@article/article.entity";
+import { articleEntitySchema, articleStatusEnum } from "@article/article.entity";
 import { articleInsertDto, articleUpdateDto } from "@article/dto/article.dto.insert";
 import { customValidator } from "@common/common.validator";
 
@@ -15,6 +15,12 @@ export const validateLimitQuery = customValidator("query",
       .min(1, { message: "Limit cannot be less than 1" })
       .max(10, { message: "Limit cannot exceed 10" })
       .default(10),
+  }),
+);
+
+export const validateStatusQuery = customValidator("query",
+  z.object({
+    status: articleStatusEnum.default("published")
   }),
 );
 

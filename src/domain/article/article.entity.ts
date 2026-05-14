@@ -7,7 +7,9 @@ export const articleStatusEnum = z.enum([
   "pending_review",
   "published",
   "archived",
-]);
+], {
+  error: "Expected input: draft, pending_review, published, archived"
+});
 
 export const articleSlugSchema = z.string()
   .toLowerCase()

@@ -2,7 +2,7 @@ import ArticleRepository from "@article/article.repository";
 import { ConflictError, NotFoundError, UnprocessableContentError } from "@common/common.http-error";
 import MediaService from "@media/media.service";
 import { MediaColumn } from "@media/media.types";
-import { Article, ArticleInsert, ArticleUpdate, Headline } from "@article/article.types";
+import { Article, ArticleInsert, ArticleStatus, ArticleUpdate, Headline } from "@article/article.types";
 import { authService } from "@common/common.singleton";
 import { UNIQUE_CONSTRAINT_ERROR } from "@common/common.constants";
 import MediaUtils from "@media/media.utils";
@@ -35,8 +35,8 @@ export default class ArticleService {
     }
   }
 
-  async getHeadlines(limit: number): Promise<Headline[]> {
-    const headlineBaseList = await this.repo.findLatestHeadlinesBase(limit);
+  async getHeadlines(limit: number, status: ArticleStatus): Promise<Headline[]> {
+    const headlineBaseList = await this.repo.findLatestHeadlinesBase(limit, status);
 
     if (headlineBaseList.length === 0)
       throw new NotFoundError("No headlines found.");
@@ -124,6 +124,12 @@ export default class ArticleService {
       },
       authorNames
     }
+  }
+
+  async deleteArticle(slug: string) {
+    const deletedArticle = await this.repo.softDeleteArticle(slug);
+    if (!deletedArticle) throw new NotFoundError(`Article with slug '${slug}' does not exist.`);
+    return deletedArticle;
   }
   
   // for development
