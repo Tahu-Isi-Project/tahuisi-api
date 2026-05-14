@@ -5,6 +5,7 @@ import Auth from "@auth/auth.controller";
 import Article from "@article/article.controller";
 import Media from "@media/media.controller";
 import MediaUtils from "@media/media.utils";
+import { internalAuthMiddleware } from "@middleware/middleware.internal-auth";
 
 const app = new Hono();
 
@@ -31,6 +32,8 @@ app.onError((err, c) => {
 });
 
 // Routes
+app.use("*", internalAuthMiddleware);
+
 app.route("/api/v1/auth", Auth);
 app.route("/api/v1/article", Article);
 app.route("/api/v1/media", Media);

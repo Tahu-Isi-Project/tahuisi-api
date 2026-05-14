@@ -1,14 +1,11 @@
 import { Hono } from "hono";
 import { validateMediaDataIdsQuery, validateMediaUploadForm } from "@media/media.validator";
-import { internalAuthMiddleware } from "@middleware/middleware.internal-auth";
 import { mediaService } from "@common/common.singleton";
 import { userAuthMiddleware } from "@middleware/middleware.user-auth";
 import { AppEnv } from "@/types";
 import { MediaColumn } from "./media.types";
 
 const media = new Hono<AppEnv>();
-
-media.use("*", internalAuthMiddleware);
 
 media.put("/", userAuthMiddleware, validateMediaUploadForm, async (c) => {
   const uploadForm = c.req.valid("form");

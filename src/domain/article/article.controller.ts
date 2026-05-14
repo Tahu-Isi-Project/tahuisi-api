@@ -1,12 +1,9 @@
 import { Hono } from "hono";
 import { validateArticleInsertBody, validateArticleUpdateBody, validateLimitQuery, validateSlugParam, validateStatusQuery } from "@article/article.validator";
 import { articleService } from "@common/common.singleton";
-import { internalAuthMiddleware } from "@middleware/middleware.internal-auth";
 import { UnauthorizedError } from "@common/common.http-error";
 
 const article = new Hono();
-
-article.use("*", internalAuthMiddleware);
 
 article.get("/", validateLimitQuery, validateStatusQuery, async (c) => {
   const { limit, status } = c.req.valid("query");
