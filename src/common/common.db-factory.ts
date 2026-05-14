@@ -13,7 +13,9 @@ export function createDomainDb(domainName: string) {
 
   const sqlite = (() => {
     try {
-      return new Database(dbFile);
+      const sqliteDb = new Database(dbFile);
+      sqliteDb.run("PRAGMA journal_mode = WAL;");
+      return sqliteDb;
     } catch (err: any) {
       if (err.code && err.code === "SQLITE_CANTOPEN") {
         console.error(`error: Unable to open database '${dbFile}' due to not exist or insufficient access permissions.`,);
