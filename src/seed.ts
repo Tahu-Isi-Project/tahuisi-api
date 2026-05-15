@@ -15,12 +15,12 @@ async function seedAuthDatabase() {
 
   if (authSample) return;
 
-  const JOKO_MD5_PASSWORD = "1e03a8f1e7405e6e5711c7eadfbba509"; // passwordkuat
-  const RYHUN_MD5_PASSWORD = "36471498d56905c10b75456b80264d3b";  // inipassword
+  const JOKO_SHA256_PASSWORD = "92990e9c3ae0796b79aaa1c857fc1c986f815909a919ace380bfc0a1f059fe31"; // passwordkuat
+  const RYHUN_SHA256_PASSWORD = "6b8b5b14be25345f0f29975a47447391571af2b266a8a2c76e5b07418b4f5c96";  // inipassword
 
   const jokoUser = {
     email: "joko@email.com",
-    password: JOKO_MD5_PASSWORD,
+    password: JOKO_SHA256_PASSWORD,
     username: "joko",
     gender: "male",
     displayName: "joko is there",
@@ -29,7 +29,7 @@ async function seedAuthDatabase() {
 
   const ryhunUser = {
     email: "ryhun@emailkeren.com",
-    password: RYHUN_MD5_PASSWORD,
+    password: RYHUN_SHA256_PASSWORD,
     username: "ryhun",
     gender: "male",
     displayName: "ryhun was here",
