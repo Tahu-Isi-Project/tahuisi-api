@@ -4,10 +4,14 @@ import { mediaService } from "@common/common.singleton";
 import { userAuthMiddleware } from "@middleware/middleware.user-auth";
 import { AppEnv } from "@/types";
 import { MediaColumn } from "./media.types";
+import { adminCheckMiddleware } from "@middleware/middleware.admin-check";
+import { BadRequestError } from "@common/common.http-error";
 
 const media = new Hono<AppEnv>();
 
-media.put("/", userAuthMiddleware, validateMediaUploadForm, async (c) => {
+media.use("*", userAuthMiddleware, adminCheckMiddleware);
+
+media.put("/", validateMediaUploadForm, async (c) => {
   const uploadForm = c.req.valid("form");
   const uploaderId = c.get("user").userId;
   const fileData = await mediaService.saveFile(uploadForm, uploaderId);
@@ -17,6 +21,9 @@ media.put("/", userAuthMiddleware, validateMediaUploadForm, async (c) => {
 
 media.delete("/:key", async (c) => {
   const key = c.req.param("key");
+
+  if (!key) throw new BadRequestError();
+
   await mediaService.deleteFile(key);
 
   return c.json({ message: "File removed" }, 200);

@@ -20,7 +20,8 @@ async function seedAuthDatabase() {
     password: "passwordkuat",
     username: "joko",
     gender: "male",
-    displayName: "joko is there"
+    displayName: "joko is there",
+    role: "user",
   } as UserRegister;
 
   const ryhunUser = {
@@ -29,6 +30,7 @@ async function seedAuthDatabase() {
     username: "ryhun",
     gender: "male",
     displayName: "ryhun was here",
+    role: "admin",
   } as UserRegister;
 
   console.log("Seeding auth database...");

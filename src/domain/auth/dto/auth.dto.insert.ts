@@ -7,6 +7,7 @@ export const userRegisterDto = userEntitySchema
     username: true,
     gender: true,
     displayName: true,
+    role: true,
   })
   .extend({
     password: z.string()

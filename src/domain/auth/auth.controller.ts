@@ -21,6 +21,13 @@ auth.post("/register", validateUserRegisterBody, async (c) => {
   return c.json({ message: "Registration successful", id: registeredUser.id }, 200);
 });
 
+auth.get("/is-admin", userAuthMiddleware, async (c) => {
+  const role = c.get("user").role;
+  if (role !== "admin") throw new UnauthorizedError();
+  
+  return c.status(200);
+});
+
 auth.post("/login", validateUserLoginBody, async (c) => {
   const userAgent = c.req.header("User-Agent") || "Unknown Browser";
   const ipAddress = getConnInfo(c).remote.address || "0.0.0.0";

@@ -7,8 +7,8 @@ export class NotFoundError extends HTTPException {
 }
 
 export class BadRequestError extends HTTPException {
-  constructor(message: string) {
-    super(400, { message });
+  constructor(message?: string) {
+    super(400, { message: message || "Bad Request" });
   }
 }
 
