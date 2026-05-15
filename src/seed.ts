@@ -15,9 +15,12 @@ async function seedAuthDatabase() {
 
   if (authSample) return;
 
+  const JOKO_MD5_PASSWORD = "1e03a8f1e7405e6e5711c7eadfbba509"; // passwordkuat
+  const RYHUN_MD5_PASSWORD = "36471498d56905c10b75456b80264d3b";  // inipassword
+
   const jokoUser = {
     email: "joko@email.com",
-    password: "passwordkuat",
+    password: JOKO_MD5_PASSWORD,
     username: "joko",
     gender: "male",
     displayName: "joko is there",
@@ -26,7 +29,7 @@ async function seedAuthDatabase() {
 
   const ryhunUser = {
     email: "ryhun@emailkeren.com",
-    password: "inipassword",
+    password: RYHUN_MD5_PASSWORD,
     username: "ryhun",
     gender: "male",
     displayName: "ryhun was here",
