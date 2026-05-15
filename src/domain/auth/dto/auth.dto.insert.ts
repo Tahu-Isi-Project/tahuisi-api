@@ -20,4 +20,5 @@ export const userSanitizedRegisterDto = userEntitySchema
     passwordHash: true,
     gender: true,
     displayName: true,
+    role: true,
   });

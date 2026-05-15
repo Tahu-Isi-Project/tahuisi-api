@@ -37,6 +37,7 @@ export default class AuthService {
       passwordHash, 
       displayName: registerData.displayName, 
       gender: registerData.gender,
+      role: registerData.role,
     }
 
     try {

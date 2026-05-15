@@ -63,6 +63,7 @@ export default class AuthRepository {
         passwordHash: data.passwordHash,
         gender: data.gender,
         displayName: data.displayName,
+        role: data.role,
       })
       .returning({ id: users.userId });
     
