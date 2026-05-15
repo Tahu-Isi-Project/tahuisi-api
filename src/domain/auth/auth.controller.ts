@@ -25,7 +25,7 @@ auth.get("/is-admin", userAuthMiddleware, async (c) => {
   const role = c.get("user").role;
   if (role !== "admin") throw new UnauthorizedError();
   
-  return c.status(200);
+  return c.json({ status: "success" }, 200);
 });
 
 auth.post("/login", validateUserLoginBody, async (c) => {
