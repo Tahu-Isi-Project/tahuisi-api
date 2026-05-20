@@ -2,7 +2,7 @@ import { COOKIE_SECRET } from "@common/common.constants";
 import { UnauthorizedError } from "@common/common.http-error";
 import { authService } from "@common/common.singleton";
 import { Context, Next } from "hono";
-import { getSignedCookie } from "hono/cookie";
+import { deleteCookie, getSignedCookie } from "hono/cookie";
 
 export const userAuthMiddleware = (async (c: Context, next: Next) => {
   const sessionId = await getSignedCookie(c, COOKIE_SECRET, "session_id");
@@ -17,6 +17,7 @@ export const userAuthMiddleware = (async (c: Context, next: Next) => {
 
   if (user.expiresAt < new Date()) {
     await authService.logoutUser(user.sessionId);
+    deleteCookie(c, "session_id", { path: "/" });
     throw new UnauthorizedError("Session expired");
   }
 
