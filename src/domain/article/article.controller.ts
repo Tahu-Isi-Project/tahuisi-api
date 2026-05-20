@@ -21,7 +21,7 @@ article.get("/:slug", validateSlugParam, async (c) => {
   return c.json(article);
 });
 
-article.get("/check-slug/:slug", validateSlugParam, async (c) => {
+article.get("/check-slug/:slug", userAuthMiddleware, adminCheckMiddleware, validateSlugParam, async (c) => {
   const { slug } = c.req.valid("param");
   const result = await articleService.getSlug(slug);
 
