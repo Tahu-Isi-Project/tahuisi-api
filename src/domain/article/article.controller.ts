@@ -21,6 +21,19 @@ article.get("/:slug", validateSlugParam, async (c) => {
   return c.json(article);
 });
 
+article.get("/check-slug/:slug", validateSlugParam, async (c) => {
+  const { slug } = c.req.valid("param");
+  const result = await articleService.getSlug(slug);
+
+  const message = result ? "Slug exists" : "Slug available";
+
+  return c.json({ 
+    message,
+    available: result === undefined,
+    slug: result ? result.slug : null,
+  }, 200);
+});
+
 article.post("/", userAuthMiddleware, adminCheckMiddleware, validateArticleInsertBody, async (c) => {
   const body = c.req.valid("json");
   await articleService.createArticle(body);

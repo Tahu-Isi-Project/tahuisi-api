@@ -131,6 +131,10 @@ export default class ArticleService {
     }
   }
 
+  async getSlug(slug: string) {
+    return await this.repo.findOneSlug(slug);
+  }
+
   async deleteArticle(slug: string) {
     const deletedArticle = await this.repo.softDeleteArticle(slug);
     if (!deletedArticle) throw new ArticleNotFoundError(slug);

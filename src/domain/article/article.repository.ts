@@ -24,6 +24,15 @@ export default class ArticleRepository {
       .limit(limit);
   }
 
+  async findOneSlug(slug: string) {
+    const [result] = await articleDb
+      .select({ slug: articles.slug })
+      .from(articles)
+      .where(eq(articles.slug, slug));
+    
+    return result;
+  }
+
   async createArticle(articleData: ArticleInsert) {
     await articleDb.transaction(async (tx) => {
       const articleId = randomUUIDv7();
