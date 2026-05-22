@@ -1,10 +1,13 @@
 @BASE_AUTH_URL = http://localhost:3000/api/v1/auth
 @INTERNAL_SECRET = superinternalsecret
 
+@COOKIE = session_id=019e501e-421a-7000-9514-9ed83f4a8466.k3Uu%2FwnNcRplxApiPvYSVRRj44GSLtU5iPygElF3ICI%3D;
+
 ###
 
 POST {{BASE_AUTH_URL}}/register
 Content-Type: application/json
+x-internal-secret: {{INTERNAL_SECRET}}
 
 {
     "email": "joko@email.com",
@@ -18,10 +21,11 @@ Content-Type: application/json
 
 POST {{BASE_AUTH_URL}}/register
 Content-Type: application/json
+x-internal-secret: {{INTERNAL_SECRET}}
 
 {
     "email": "ryhun@emailkeren.com",
-    "password": "passwordkuat",
+    "password": "inipassword",
     "username": "ryhun",
     "gender": "male",
     "displayName": "ryhun was here"
@@ -31,11 +35,24 @@ Content-Type: application/json
 
 POST {{BASE_AUTH_URL}}/login
 Content-Type: application/json
+x-internal-secret: {{INTERNAL_SECRET}}
 
 {
     "email": "joko@email.com",
-    "password": "passwordkuat"
+    "password": "92990e9c3ae0796b79aaa1c857fc1c986f815909a919ace380bfc0a1f059fe31"
 }
+
+###
+
+POST {{BASE_AUTH_URL}}/login
+Content-Type: application/json
+x-internal-secret: {{INTERNAL_SECRET}}
+
+{
+    "email": "ryhun@emailkeren.com",
+    "password": "6b8b5b14be25345f0f29975a47447391571af2b266a8a2c76e5b07418b4f5c96"
+}
+
 
 ###
 
@@ -49,3 +66,9 @@ GET {{BASE_AUTH_URL}}/sessions
 ###
 
 DELETE {{BASE_AUTH_URL}}/sessions
+
+###
+
+GET {{BASE_AUTH_URL}}/user?usernames=joko&usernames=ryhun
+x-internal-secret: {{INTERNAL_SECRET}}
+Cookie: {{COOKIE}}

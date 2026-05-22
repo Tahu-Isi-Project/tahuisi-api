@@ -19,14 +19,14 @@ export default class AuthService {
   }
 
   async registerUser(registerData: UserRegister) {
-    const [existingEmail, existingUsername] = await Promise.all([
+    const [existingEmail, existingUsernames] = await Promise.all([
       await this.repo.findUserByEmail(registerData.email),
-      await this.repo.findUserByUsername(registerData.username)
+      await this.repo.findUsersByUsernames(registerData.username)
     ]);
 
     if (existingEmail) 
       throw new ConflictError("Email already registered");
-    if (existingUsername) 
+    if (existingUsernames.length !== 0) 
       throw new ConflictError("Username already registered");
     
     const passwordHash = await Bun.password.hash(registerData.password, "argon2id");
@@ -57,7 +57,7 @@ export default class AuthService {
     const userData = await this.repo.findUserByEmail(loginData.email, true);
 
     const isVerified = userData && await Bun.password.verify(loginData.password, userData.passwordHash);
-    if (!isVerified) throw new UnauthorizedError("Email/password provided is invalid.");
+    if (!isVerified) throw new UnauthorizedError("Email/password provided is invalid");
 
     const sessionId = randomUUIDv7();
     
@@ -103,6 +103,10 @@ export default class AuthService {
       );
 
     return await this.repo.findDisplayNamesByUserIds(userIds);
+  }
+
+  async getUsersFromUsernames(usernames: string[]) {
+    return await this.repo.findUsersByUsernames(usernames);
   }
 
   async getUserAndSession(sessionId: string) {

@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { deleteCookie, setSignedCookie } from "hono/cookie";
-import { validateUserLoginBody, validateUserRegisterBody } from "@auth/auth.validator";
+import { validateUserLoginBody, validateUserSearchQuery, validateUserRegisterBody } from "@auth/auth.validator";
 import { UserLogin } from "@auth/auth.types";
 import { getConnInfo } from "hono/bun";
 import { userAuthMiddleware } from "@middleware/middleware.user-auth";
@@ -8,6 +8,7 @@ import { authService } from "@common/common.singleton";
 import { AppEnv } from "@/types";
 import { COOKIE_SECRET } from "@common/common.constants";
 import { InternalServerError, UnauthorizedError } from "@common/common.http-error";
+import { adminCheckMiddleware } from "@middleware/middleware.admin-check";
 
 const auth = new Hono<AppEnv>();
 
@@ -65,6 +66,15 @@ auth.post("/logout-all", userAuthMiddleware, async (c) => {
   await authService.logoutAllDevices(userId);
   deleteCookie(c, "session_id", { path: "/" });
   return c.json({ message: "Logged out from all devices" });
+});
+
+auth.get("/user", userAuthMiddleware, adminCheckMiddleware, validateUserSearchQuery, async (c) => {
+  const usernames = c.req.valid("query").usernames;
+  const users = await authService.getUsersFromUsernames(usernames);
+
+  return users.length === 0 
+    ? c.body(null, 204) 
+    : c.json({ users });
 });
 
 // for development

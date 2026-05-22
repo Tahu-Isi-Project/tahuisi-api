@@ -30,16 +30,18 @@ export default class AuthRepository {
     return res;
   }
 
-  async findUserByUsername(username: string) {
-    const [res] = await authDb
+  async findUsersByUsernames(username: string | string[]) {
+    const query = Array.isArray(username) 
+      ? inArray(users.username, username)
+      : eq(users.username, username);
+    
+    return await authDb
       .select({
         userId: users.userId,
         username: users.username
       })
       .from(users)
-      .where(eq(users.username, username.toLowerCase()));
-
-    return res;
+      .where(query);
   }
 
   async findDisplayNamesByUserIds(userIds: string[]) {
