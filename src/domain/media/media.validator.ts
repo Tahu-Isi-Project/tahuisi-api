@@ -6,11 +6,12 @@ export const validateMediaUploadForm = customValidator("form", mediaFormInsertDt
 
 export const validateMediaDataIdsQuery = customValidator("query", z.object({
   ids: z
-    .string()
-    .transform((val) => val.split(","))
-    .pipe(z.array(z.uuidv7()).min(1)),
+    .union([z.string(), z.array(z.string())])
+    .transform((val) => (Array.isArray(val) ? val : [val]))
+    .pipe(z.array(z.string()).min(1).max(30)),
   columns: z
-    .string()
-    .transform((val) => val.split(","))
+    .union([z.string(), z.array(z.string())])
+    .transform((val) => (Array.isArray(val) ? val : [val]))
+    .pipe(z.array(z.string()).min(1).max(30))
     .optional(),
 }));
