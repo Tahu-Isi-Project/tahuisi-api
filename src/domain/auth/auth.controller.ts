@@ -69,7 +69,7 @@ auth.post("/logout-all", userAuthMiddleware, async (c) => {
 });
 
 auth.get("/user", userAuthMiddleware, adminCheckMiddleware, validateUserSearchQuery, async (c) => {
-  const usernames = c.req.valid("query").usernames;
+  const usernames = c.req.valid("query").username;
   const users = await authService.getUsersFromUsernames(usernames);
 
   return users.length === 0 

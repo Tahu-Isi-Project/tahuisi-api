@@ -9,7 +9,7 @@ export const validateUserLoginBody = customValidator("json", userLoginBaseDto);
 
 export const validateUserSearchQuery = customValidator("query", 
   z.object({
-    usernames: z
+    username: z
       .union([z.string(), z.array(z.string())])
       .transform((val) => (Array.isArray(val) ? val : [val]))
       .pipe(z.array(z.string()).min(1).max(20))
