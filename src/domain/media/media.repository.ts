@@ -9,9 +9,7 @@ export default class MediaRepository {
 
   async findByIdsFromQueries(ids: string[], columns: MediaColumn[]) {
     const selectedColumns = Object.fromEntries(
-      ["id", ...columns].map(
-        (col) => [col, this.mediaColumns[col as MediaColumn]]
-      ),
+      columns.map((col) => [col, this.mediaColumns[col as MediaColumn]]),
     ) as typeof this.mediaColumns;
 
     return await mediaDb
@@ -28,40 +26,50 @@ export default class MediaRepository {
       .values({
         id: randomUUIDv7(),
         uploadedAt: date,
-        updatedAt: date, 
+        updatedAt: date,
         ...data,
       })
       .onConflictDoUpdate({
         target: [media.fileHash],
-        set: { 
-          updatedAt: date 
+        set: {
+          updatedAt: date,
         },
       })
-      .returning({ 
+      .returning({
         id: media.id,
-        status: media.status 
+        status: media.status,
       });
 
     return res;
   }
 
   async updateStatus(key: string, status: "ready" | "pending" | "deleting") {
-    await mediaDb
+    const [res] = await mediaDb
       .update(media)
       .set({ status })
-      .where(eq(media.key, key));
+      .where(eq(media.key, key))
+      .returning({
+        id: media.id,
+        status: media.status,
+      });
+
+    return res;
   }
 
   async deleteByKey(key: string) {
-    await mediaDb
+    const [deleted] = await mediaDb
       .delete(media)
-      .where(eq(media.key, key));
+      .where(eq(media.key, key))
+      .returning({ 
+        id: media.id,
+        key: media.key,
+      })
+      
+    return deleted;
   }
 
   async getAllMediaData() {
-    return await mediaDb
-      .select()
-      .from(media);
+    return await mediaDb.select().from(media);
   }
 
   async deleteAll() {
@@ -69,9 +77,7 @@ export default class MediaRepository {
   }
 
   async deleteByKeys(keys: string[]) {
-    await mediaDb
-      .delete(media)
-      .where(inArray(media.key, keys))
+    await mediaDb.delete(media).where(inArray(media.key, keys));
   }
 
   async findDanglingKeys() {
@@ -80,11 +86,8 @@ export default class MediaRepository {
     const items = await mediaDb
       .select({ key: media.key })
       .from(media)
-      .where(and(
-        ne(media.status, "ready"),
-        lt(media.uploadedAt, oneHourAgo)
-      ));
-    
+      .where(and(ne(media.status, "ready"), lt(media.uploadedAt, oneHourAgo)));
+
     return items.map((item) => item.key);
   }
 }

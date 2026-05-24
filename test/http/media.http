@@ -1,6 +1,12 @@
 @BASE_MEDIA_URL = http://localhost:3000/api/v1/media
 @INTERNAL_SECRET = superinternalsecret
-@COOKIE = session_id=019e1035-fd8b-7000-afce-c8f40e2fd46c.nupgPIEkUpuP9UsRjV0eGzlKcX3WaYS9z3fcXK8iIFQ%3D;
+@COOKIE =  session_id=019e599f-69f5-7000-bdc3-9bc2ca6f3ffd.BavYmOkL12IADrzFVkdcr%2B7YM2iC8WerL2xhb7iCJCc%3D; Max-Age=86400; Path=/; HttpOnly; Secure; SameSite=Lax
+
+###
+
+GET {{BASE_MEDIA_URL}}?id=019e59e0-7499-7000-9b45-b5b432240456&withUrl=true&column=id&column=key&column=key
+x-internal-secret: {{INTERNAL_SECRET}}
+Cookie: {{COOKIE}}
 
 ###
 
@@ -45,6 +51,12 @@ Content-Type: image/jpg
 
 < ../../files/mokoukaguya.jpg
 --boundary--
+
+###
+
+DELETE {{BASE_MEDIA_URL}}/913aac9af28c6cdbb0430506549055891db4ee64405ef9a2b5f72a5be1f60fa8.jpeg
+x-internal-secret: {{INTERNAL_SECRET}}
+Cookie: {{COOKIE}}
 
 ###
 

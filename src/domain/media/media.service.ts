@@ -1,4 +1,4 @@
-import { InternalServerError, UnprocessableContentError } from "@common/common.http-error";
+import { InternalServerError, NotFoundError, UnprocessableContentError } from "@common/common.http-error";
 import MediaRepository from "@media/media.repository";
 import { MediaColumn, MediaForm, MediaInsert } from "@media/media.types";
 import MediaUtils from "@media/media.utils";
@@ -17,9 +17,9 @@ export default class MediaService {
     this.repo = mediaRepository;
   }
 
-  async saveFile(media: MediaForm, uploaderId: string) {
+  async saveFile(media: MediaForm, uploaderId: string, withUrl: boolean = false) {
     if (!media.file.type.startsWith("image/"))
-      throw new UnprocessableContentError("Only images are allowed.");
+      throw new UnprocessableContentError("Only images are allowed for now.");
 
     const arrayBuffer = await media.file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -65,18 +65,48 @@ export default class MediaService {
     }
 
     try {
-      await this.repo.updateStatus(key, "ready");
+      const updatedMedia = await this.repo.updateStatus(key, "ready");
+
+      if (!updatedMedia) {
+        console.error("Media result is undefined after status update for key:", key);
+        throw new InternalServerError("Media status update failed.");
+      }
+
+      if (!withUrl) return updatedMedia;
+
+      const EXPIRY_SECS = 3600;
+      const url = MediaUtils.getPresignedUrl(key, EXPIRY_SECS);
+
+      return { ...updatedMedia, url };
+      
     } catch (err) {
       console.error("File in S3 but DB update failed:", err);
       await MediaUtils.deleteFromS3(key).catch(console.error);
       throw new InternalServerError("Record update failed. Storage rolled back.");
     }
-
-    return record;
   }
 
-  async getFilesData(ids: string[], queryColumns: MediaColumn[]) {
-    return await this.repo.findByIdsFromQueries(ids, queryColumns);
+  async getFilesData(ids: string[], queryColumns: MediaColumn[], withUrl: boolean = false) {
+    const columns = withUrl 
+      ? [...queryColumns, "key"] as MediaColumn[] 
+      : queryColumns;
+    
+    const mediaData = await this.repo.findByIdsFromQueries(ids, columns);
+
+    console.log(mediaData);
+
+    if (!withUrl) return mediaData;
+    
+    try {
+      const EXPIRY_SECS = 3600;
+      return mediaData.map((data) => ({
+        ...data, 
+        url: MediaUtils.getPresignedUrl(data.key, EXPIRY_SECS)
+      }));
+    } catch (err) {
+      console.error("S3 URL presign error:", err);
+      throw err;
+    }
   }
 
   async getAllMediaData() {
@@ -84,8 +114,14 @@ export default class MediaService {
   }
 
   async deleteFile(key: string) {
-    await this.repo.deleteByKey(key);
+    const deletedFile = await this.repo.deleteByKey(key);
+
+    if (!deletedFile)
+      throw new NotFoundError(`Key '${key}' not found in database.`);
+    
     await MediaUtils.deleteFromS3(key);
+
+    return deletedFile;
   }
 
   async clearMediaTable() {
